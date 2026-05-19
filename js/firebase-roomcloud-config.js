@@ -1,6 +1,7 @@
-/* FIREBASE-ROOMCLOUD-CONFIG.JS */
-// firebase-roomcloud-config.js
-apiKey: "AIzaSyA2CZmgpuWsaLXiKoSQmnigf67MJI44Rus",
+/* FIREBASE-CONFIG.JS */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2CZmgpuWsaLXiKoSQmnigf67MJI44Rus",
   authDomain: "anagrafica25.firebaseapp.com",
   databaseURL: "https://anagrafica25-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "anagrafica25",
