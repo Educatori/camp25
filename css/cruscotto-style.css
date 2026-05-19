@@ -1,0 +1,317 @@
+/* ============================================================
+   DASHBOARD-STYLE.CSS / CRUSCOTTO-STYLE.CSS
+   Importa convitto-theme.css per le regole base
+   ============================================================ */
+
+/* ─── VARIABILI OVERRIDE PER CRUSCOTTO ─────────────────────── */
+:root {
+    /* accenti card - usati negli script esistenti */
+    --p:             var(--accent);
+    --s:             var(--ok);
+    --d:             var(--absent);
+    --e:             var(--dinner-no);
+    --bg:            #0f1117;
+    --card-bg:       var(--surface);
+    --permessi:      var(--pp);
+    --highlight-lab: rgba(243,156,18,0.12);
+    --lab-text:      var(--lab);
+    --cambiati:      var(--switched);
+    --btn-inactive:  var(--surface-2);
+    --btn-color-1:   var(--btn-t1);
+    --btn-color-2:   var(--btn-t2);
+    --btn-color-3:   var(--btn-t3);
+    --btn-color-4:   var(--btn-t4);
+    --text-dark:     var(--text);
+    --text-muted:    var(--text-2);
+    --border-color:  var(--border);
+}
+
+/* ─── LAYOUT ────────────────────────────────────────────────── */
+body {
+    padding: 0;
+    background: var(--bg);
+}
+
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+}
+
+/* ─── HEADER ────────────────────────────────────────────────── */
+header {
+    background: var(--bg-2);
+    border: 1px solid var(--border-2);
+    color: var(--text);
+    padding: 16px 28px;
+    border-radius: var(--radius-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    gap: 16px;
+}
+
+header h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+header h1 a {
+    background: inherit;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#todayDate {
+    font-size: 0.78rem !important;
+    color: var(--text-2) !important;
+    font-family: var(--font-mono) !important;
+    opacity: 1 !important;
+    margin-top: 3px;
+}
+
+#digitalClock {
+    font-family: var(--font-mono) !important;
+    font-size: 1.8rem !important;
+    font-weight: 600 !important;
+    color: var(--accent) !important;
+    letter-spacing: 0.05em !important;
+    text-shadow: 0 0 20px rgba(79,142,247,0.4) !important;
+}
+
+header button {
+    background: rgba(255,255,255,0.07) !important;
+    color: var(--text-2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 7px 14px !important;
+    font-family: var(--font) !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all var(--t) !important;
+    letter-spacing: 0.04em !important;
+}
+
+header button:hover {
+    background: rgba(255,255,255,0.12) !important;
+    color: var(--text) !important;
+}
+
+/* ─── GRID STUDENTI ─────────────────────────────────────────── */
+#listaStudenti {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ─── CARD STUDENTE ─────────────────────────────────────────── */
+.student-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    border-bottom: 4px solid var(--ok);
+    transition: all var(--t);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+}
+
+.student-row:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--border-2);
+}
+
+/* ─── STATI CARD ────────────────────────────────────────────── */
+.student-row.dinner-no {
+    border-bottom-color: var(--dinner-no);
+    background: linear-gradient(135deg, var(--surface), rgba(52,152,219,0.06));
+}
+
+.student-row.assente {
+    border-bottom-color: var(--absent);
+    background: linear-gradient(135deg, var(--surface), rgba(231,76,60,0.06));
+    opacity: 0.75;
+}
+
+.student-row.highlight-lab {
+    background: linear-gradient(135deg, var(--surface), var(--lab-dim)) !important;
+    border-bottom-color: var(--lab) !important;
+    border-color: rgba(243,156,18,0.25) !important;
+}
+
+/* ─── ELEMENTI CARD ─────────────────────────────────────────── */
+.st-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.room-badge {
+    background: var(--surface-3);
+    color: var(--text-2);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 0.68rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+}
+
+.lab-badge {
+    color: var(--lab);
+    font-weight: 700;
+    font-size: 0.72rem;
+    animation: pulse 3s infinite;
+}
+
+.student-row .st-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.student-row .st-class {
+    font-size: 0.72rem;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+}
+
+/* ─── INPUT ORA ─────────────────────────────────────────────── */
+.inputs {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+}
+
+.inputs input {
+    width: 50%;
+    padding: 7px 8px;
+    background: var(--bg-3);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+    outline: none;
+    transition: border-color var(--t);
+}
+
+.inputs input:focus { border-color: var(--accent); }
+.inputs input::placeholder { color: var(--text-muted); }
+
+/* ─── BOTTONI CARD ──────────────────────────────────────────── */
+.btns { display: flex; gap: 6px; }
+
+.btns button {
+    flex: 1;
+    padding: 7px 5px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-family: var(--font);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t);
+    letter-spacing: 0.03em;
+}
+
+.btns button:hover {
+    background: var(--surface-3);
+    color: var(--text);
+}
+
+/* Stati attivi */
+.active-ass {
+    background: var(--absent) !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 2px 10px rgba(231,76,60,0.35) !important;
+}
+
+.active-din {
+    background: var(--dinner-no) !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 2px 10px rgba(52,152,219,0.35) !important;
+}
+
+/* ─── BTN SWITCH TURNO ──────────────────────────────────────── */
+.btn-switch {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--t);
+    font-size: 0.85rem;
+}
+
+.btn-switch:hover { background: var(--surface-3); }
+
+.btn-switch.modificato {
+    background: var(--switched) !important;
+    border-color: transparent !important;
+    color: white;
+    box-shadow: 0 2px 10px rgba(56,217,169,0.35) !important;
+}
+
+/* ─── TURNI ROW ─────────────────────────────────────────────── */
+.turni-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+/* ─── CONNECTION STATUS ─────────────────────────────────────── */
+#connection-status {
+    font-size: 0.68rem !important;
+    padding: 5px 12px !important;
+    border-radius: 20px !important;
+    font-family: var(--font) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.03em !important;
+    background: var(--ok-dim) !important;
+    color: var(--ok) !important;
+    border: 1px solid rgba(46,204,113,0.25) !important;
+}
+
+/* ─── PP INDICATOR ──────────────────────────────────────────── */
+.permesso-tag {
+    color: var(--pp);
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+/* ─── MEDIA QUERIES ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+    #listaStudenti { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
+@media (max-width: 600px) {
+    #listaStudenti { grid-template-columns: 1fr 1fr; }
+    header { flex-direction: column; text-align: center; gap: 10px; }
+    .toolbar { flex-wrap: wrap; }
+    .container { padding: 12px; }
+}

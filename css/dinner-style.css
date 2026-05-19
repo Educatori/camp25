@@ -1,0 +1,278 @@
+/* ============================================================
+   DINNER-STYLE.CSS — Presenze Dinner Turno 1 & 2
+   ============================================================ */
+
+/* ─── BASE ──────────────────────────────────────────────────── */
+body {
+    font-family: var(--font, 'DM Sans', 'Segoe UI', sans-serif);
+    margin: 0;
+    padding: 8px;
+    font-size: 12px;
+    background: var(--bg, #0f1117);
+    color: var(--text, #e8ecf4);
+}
+
+/* ─── HEADER ────────────────────────────────────────────────── */
+.header-main {
+    text-align: center;
+    border-bottom: 2px solid rgba(79,142,247,0.35);
+    margin-bottom: 12px;
+    padding: 8px 0 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.print-logo {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+}
+
+h1 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    background: linear-gradient(90deg, #4f8ef7, #38d9a9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2, #a0aec0);
+    font-family: var(--font-mono, monospace);
+    letter-spacing: 0.08em;
+}
+
+/* ─── TURNI CONTAINER ───────────────────────────────────────── */
+.turno-container { margin-bottom: 20px; }
+
+/* ─── GRIGLIA ───────────────────────────────────────────────── */
+.grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 12px;
+    width: 100%;
+}
+
+.column { display: flex; flex-direction: column; }
+
+/* ─── INTESTAZIONE COLONNA ──────────────────────────────────── */
+.column-header {
+    display: flex;
+    background: var(--bg-2);
+    color: rgba(255,255,255,0.75);
+    font-weight: 700;
+    padding: 6px 5px;
+    border-radius: 6px 6px 0 0;
+    font-size: 9px;
+    margin-bottom: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid rgba(79,142,247,0.2);
+    border-bottom: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* ─── RIGA STUDENTE ─────────────────────────────────────────── */
+.student-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 6px;
+    margin-bottom: 1px;
+    border: 0.5px solid rgba(255,255,255,0.07);
+    border-radius: 2px;
+    font-size: 10px;
+    background: transparent;
+    transition: background 0.15s;
+    page-break-inside: avoid;
+}
+
+.student-row:nth-child(even) { background: rgba(26,34,54,0.6); }
+.student-row:hover { background: rgba(79,142,247,0.06); }
+
+.row-crossed {
+    text-decoration: line-through;
+    opacity: 0.4;
+    background: rgba(231,76,60,0.10) !important;
+}
+
+/* ─── CELLE ─────────────────────────────────────────────────── */
+.cell-class {
+    width: 46px;
+    text-align: left;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: var(--font-mono, monospace);
+    padding-left: 3px;
+    flex-shrink: 0;
+}
+
+.cell-name {
+    flex-grow: 2;
+    padding-left: 7px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 10px;
+}
+
+.cell-name b { font-weight: 700; color: var(--text, #e8ecf4); }
+
+.cell-check {
+    width: 30px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ─── CHECKBOX ──────────────────────────────────────────────── */
+.check-box {
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+}
+
+.check-box:hover { border-color: #2ecc71; }
+
+.check-box.checked {
+    background: rgba(46,204,113,0.15);
+    border-color: #2ecc71;
+}
+
+.check-box.checked::after {
+    content: '✔';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: #2ecc71;
+    line-height: 1;
+}
+
+/* ─── PULSANTE STAMPA ───────────────────────────────────────── */
+.no-print { text-align: center; margin-bottom: 14px; }
+
+.btn {
+    padding: 9px 28px;
+    background: linear-gradient(90deg, #4f8ef7, #38d9a9);
+    color: #0f1117;
+    border: none;
+    cursor: pointer;
+    border-radius: 30px;
+    font-weight: 700;
+    font-family: var(--font, sans-serif);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(79,142,247,0.35);
+}
+
+.btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* ─── STAMPA ────────────────────────────────────────────────── */
+@media print {
+    .no-print { display: none !important; }
+
+    body {
+        background: white !important;
+        color: black !important;
+        padding: 0;
+        font-size: 9pt;
+    }
+
+    .print-logo { display: block !important; }
+
+    h1 {
+        background: none !important;
+        -webkit-text-fill-color: #1a2236 !important;
+        color: #1a2236 !important;
+    }
+
+    .subtitle { color: #555 !important; }
+
+    .column-header {
+        background: var(--bg-2) !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .student-row {
+        border-color: #ccc !important;
+        background: white !important;
+        font-size: 9pt;
+        padding: 3px 4px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .student-row:nth-child(even) { background: #f8f8f8 !important; }
+
+    .cell-class { color: #1a2236 !important; font-size: 9pt; }
+    .cell-name { font-size: 9pt; }
+    .cell-name b { color: black !important; }
+
+    .check-box {
+        border: 1.5px solid #333 !important;
+        background: white !important;
+    }
+
+    .check-box.checked::after { color: #2e7d32 !important; }
+
+    .turno-2 {
+        page-break-before: page;
+        break-before: page;
+    }
+
+    @page { size: A4 landscape; margin: 0.5cm; }
+}
+
+/* ─── LIGHT MODE (mobile con sistema chiaro) ────────────────── */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+    body { background: var(--bg); color: var(--text); }
+
+    h1 { background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
+         -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .header-main { border-bottom-color: rgba(79,142,247,0.35); }
+    .subtitle { color: var(--text-2); }
+
+    .column-header { background: var(--bg-2); color: var(--text-2);
+                     border-color: rgba(79,142,247,0.2); }
+
+    .student-row { border-color: var(--border); background: transparent; }
+    .student-row:nth-child(even) { background: var(--surface-2); }
+
+    .cell-class { color: var(--accent); }
+    .cell-name b { color: var(--text); }
+
+    .check-box { border-color: var(--border-2); background: var(--surface-2); }
+    .check-box.checked { background: var(--ok-dim); border-color: var(--ok); }
+    .check-box.checked::after { color: var(--ok); }
+}
