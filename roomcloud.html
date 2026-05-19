@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Cloud 3.0</title>
+    <link rel="stylesheet" href="css/convitto-theme.css">
+    <style>
+        /* ─── LAYOUT ──────────────────────────────────────────── */
+        body {
+            padding: 12px;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ─── LOGIN ───────────────────────────────────────────── */
+        .login-container {
+            max-width: 380px;
+            margin: 80px auto;
+            background: var(--surface);
+            border: 1px solid var(--border-2);
+            padding: 36px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-bottom: 6px;
+            font-size: 1.1rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-container p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 24px;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 12px;
+            background: var(--bg-3);
+            border: 1px solid var(--border-2);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 0.85rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color var(--t);
+        }
+
+        .login-container input:focus { border-color: var(--accent); }
+        .login-container input::placeholder { color: var(--text-muted); }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
+            color: var(--text-inv);
+            border: none;
+            border-radius: var(--radius);
+            font-family: var(--font);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: all var(--t);
+        }
+
+        .login-container button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .error {
+            color: var(--absent);
+            font-size: 0.82rem;
+            margin-top: 12px;
+        }
+
+        /* ─── APP HEADER ──────────────────────────────────────── */
+        .app-header {
+            background: var(--bg-2);
+            border: 1px solid var(--border-2);
+            padding: 14px 20px;
+            border-radius: var(--radius-xl);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+
+        .app-header h1 {
+            font-size: 1.05rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-header h1 a {
+            background: inherit;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .current-date {
+            font-size: 0.78rem;
+            color: var(--text-2);
+            font-family: var(--font-mono);
+        }
+
+        .stats {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid rgba(79,142,247,0.25);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            letter-spacing: 0.03em;
+        }
+
+        .button-group { display: flex; gap: 8px; }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-family: var(--font);
+            font-size: 0.78rem;
+            font-weight: 700;
+            transition: all var(--t);
+            letter-spacing: 0.03em;
+        }
+
+        .btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-primary  { background: var(--btn-t1); color: white; }
+        .btn-secondary{ background: var(--btn-reset); color: white; }
+        .btn-danger   { background: var(--absent); color: white; }
+
+        /* ─── GRIGLIA CAMERE ──────────────────────────────────── */
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 10px;
+        }
+
+        .room-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: border-color var(--t);
+        }
+
+        .room-card:hover { border-color: var(--border-2); }
+
+        .room-title {
+            background: var(--bg-3);
+            border-bottom: 1px solid var(--border);
+            color: var(--accent);
+            padding: 7px 10px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            letter-spacing: 0.08em;
+        }
+
+        .students-list { padding: 4px; }
+
+        /* ─── RIGA STUDENTE ───────────────────────────────────── */
+        .student-item {
+            padding: 7px 10px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background var(--t);
+            position: relative;
+            user-select: none;
+            background: transparent;
+            font-size: 0.82rem;
+            border-radius: 4px;
+            margin-bottom: 2px;
+        }
+
+        .student-item:last-child { border-bottom: none; margin-bottom: 0; }
+        .student-item:active { transform: scale(0.99); }
+        .student-item:hover { background: var(--surface-2); }
+
+        /* Foresteria */
+        .student-item.foresteria-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .foresteria-input {
+            flex: 1;
+            padding: 4px 8px;
+            background: var(--bg-3);
+            border: 1px solid var(--border-2);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 0.78rem;
+            font-family: var(--font);
+            outline: none;
+        }
+
+        .foresteria-input::placeholder { color: var(--text-muted); }
+        .foresteria-input:focus { border-color: var(--accent); }
+
+        .student-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .student-class {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            margin-top: 1px;
+        }
+
+        /* ─── STATI STUDENTE ──────────────────────────────────── */
+        .student-status {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            letter-spacing: 0.03em;
+        }
+
+        /* Stand-by: giallo ambra */
+        .student-item.stato-assente {
+            background: rgba(243,156,18,0.12) !important;
+            border-left: 3px solid var(--lab);
+        }
+        .status-assente { background: var(--lab-dim); color: var(--lab); }
+
+        /* Assente: rosso */
+        .student-item.stato-confermato {
+            background: rgba(231,76,60,0.10) !important;
+            border-left: 3px solid var(--absent);
+        }
+        .status-confermato { background: var(--absent-dim); color: var(--absent); }
+
+        /* Attività: verde acqua */
+        .student-item.stato-attivita {
+            background: rgba(56,217,169,0.10) !important;
+            border-left: 3px solid var(--accent-2);
+        }
+        .status-attivita { background: var(--accent-2-dim); color: var(--accent-2); }
+
+        /* Foresteria occupata */
+        .foresteria-occupato {
+            background: var(--accent-dim) !important;
+            border-left: 3px solid var(--accent) !important;
+        }
+
+        /* Note */
+        .student-item.nota-row {
+            background: rgba(56,217,169,0.07) !important;
+            border-left: 3px solid var(--accent-2);
+            cursor: default;
+            font-style: italic;
+            color: var(--accent-2);
+        }
+
+        /* ─── MODALE ──────────────────────────────────────────── */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border-2);
+            border-radius: var(--radius-xl);
+            padding: 24px 20px;
+            max-width: 320px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        #modalMessage {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 18px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-family: var(--font);
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all var(--t);
+            letter-spacing: 0.02em;
+        }
+
+        .modal-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .modal-btn-standby  {
+            background: var(--lab-dim);
+            color: var(--lab);
+            border: 1px solid rgba(243,156,18,0.35);
+        }
+        .modal-btn-assente  {
+            background: var(--absent-dim);
+            color: var(--absent);
+            border: 1px solid rgba(231,76,60,0.35);
+        }
+        .modal-btn-attivita {
+            background: var(--accent-2-dim);
+            color: var(--accent-2);
+            border: 1px solid rgba(56,217,169,0.35);
+        }
+        .modal-btn-cancel   {
+            background: var(--surface-2);
+            color: var(--text-2);
+            border: 1px solid var(--border-2);
+        }
+
+        /* ─── PRINT TIMESTAMP ─────────────────────────────────── */
+        .print-timestamp { display: none; }
+
+        /* ─── LIGHT MODE (mobile) ─────────────────────────────── */
+        @media (max-width: 768px) and (prefers-color-scheme: light) {
+            body { background: var(--bg); }
+
+            .login-container, .app-header, .room-card {
+                background: var(--surface);
+                border-color: var(--border);
+            }
+
+            .room-title {
+                background: var(--surface-2);
+                border-bottom-color: var(--border);
+                color: var(--accent);
+            }
+
+            .student-item:hover { background: var(--surface-2); }
+
+            .foresteria-input {
+                background: var(--bg-3);
+                border-color: var(--border-2);
+                color: var(--text);
+            }
+
+            .modal-content {
+                background: var(--surface);
+                border-color: var(--border-2);
+            }
+        }
+
+        /* ─── STAMPA ──────────────────────────────────────────── */
+        @media print {
+            @page { size: A4 portrait; margin: 6mm; }
+
+            body {
+                padding: 0;
+                background: white !important;
+                color: black !important;
+                zoom: 0.85;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .button-group, .modal { display: none !important; }
+
+            .app-header {
+                background: white !important;
+                border: none !important;
+                border-bottom: 1px solid #ccc !important;
+                box-shadow: none !important;
+                padding: 4px 6px;
+                margin-bottom: 6px;
+                border-radius: 0 !important;
+            }
+
+            .app-header h1 {
+                background: none !important;
+                -webkit-text-fill-color: #1a2236 !important;
+                color: #1a2236 !important;
+            }
+
+            .current-date { color: #555 !important; }
+
+            .stats {
+                background: #e8eef5 !important;
+                color: #1a2236 !important;
+                border-color: #ccc !important;
+            }
+
+            .rooms-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
+            }
+
+            .room-card {
+                background: white !important;
+                border: 1px solid #bbb !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+                border-radius: 3px !important;
+            }
+
+            .room-title {
+                background: #d1d9e0 !important;
+                border-bottom: 1px solid #bbb !important;
+                color: #1a2236 !important;
+                padding: 3px 6px;
+                font-size: 9px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .student-item {
+                padding: 3px 4px;
+                break-inside: avoid;
+                border-bottom-color: #eee !important;
+                background: white !important;
+                border-radius: 0 !important;
+                margin-bottom: 0 !important;
+            }
+
+            .student-item.stato-assente {
+                background: #fff9c4 !important;
+                border-left: 3px solid #f1c40f !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .student-item.stato-confermato {
+                background: #ffebee !important;
+                border-left: 3px solid #e74c3c !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .student-item.stato-attivita {
+                background: #e0f2f1 !important;
+                border-left: 3px solid #26a69a !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .foresteria-occupato {
+                background: #e3f2fd !important;
+                border-left: 3px solid #2196f3 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .student-name { font-size: 9.5px; color: black !important; }
+            .student-class { font-size: 7px; color: #555 !important; }
+            .student-status { font-size: 7px; }
+
+            .foresteria-input {
+                border: none !important;
+                background: transparent !important;
+                color: black !important;
+                padding: 0;
+            }
+
+            .print-timestamp {
+                display: block;
+                text-align: right;
+                font-size: 9px;
+                color: #555;
+                margin-top: 16px;
+                border-top: 1px solid #eee;
+                padding-top: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN -->
+    <div id="loginScreen" class="login-container">
+        <h2>Room Cloud 3.0</h2>
+        <p>Inserisci le credenziali per continuare</p>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">ACCEDI</button>
+        <div id="loginError" class="error"></div>
+    </div>
+
+    <!-- APP -->
+    <div id="appScreen" style="display:none;">
+        <div class="app-header">
+            <div class="header-title">
+                <h1><a href="index.html">Room Cloud 3.0</a></h1>
+                <span id="currentDate" class="current-date"></span>
+            </div>
+            <div class="stats" id="statsForesteria">Posti liberi: —</div>
+            <div class="button-group">
+                <button class="btn btn-primary"   id="stampaBtn">Stampa</button>
+                <button class="btn btn-secondary" id="resetBtn">Reset</button>
+                <button class="btn btn-danger"    id="logoutBtn">Esci</button>
+            </div>
+        </div>
+
+        <div id="roomsGrid" class="rooms-grid"></div>
+        <div id="printTimestamp" class="print-timestamp"></div>
+    </div>
+
+    <!-- MODALE -->
+    <div id="actionModal" class="modal">
+        <div class="modal-content">
+            <p id="modalMessage">Scegli azione</p>
+            <div class="modal-buttons">
+                <button id="modalStandbyBtn"  class="modal-btn modal-btn-standby">❓ STAND-BY</button>
+                <button id="modalAssenteBtn"  class="modal-btn modal-btn-assente">❌ ASSENTE</button>
+                <button id="modalAttivitaBtn" class="modal-btn modal-btn-attivita">⚙️ ATTIVITÀ</button>
+                <button id="modalCancelBtn"   class="modal-btn modal-btn-cancel">↪️ ANNULLA</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { firebaseConfig } from './js/firebase-roomcloud-config.js';
+
+        const app  = initializeApp(firebaseConfig);
+        const db   = getDatabase(app);
+        const auth = getAuth(app);
+
+        let studentiData  = [];
+        let assenzeData   = {};
+        let pendingResolve = null;
+
+        const loginScreen    = document.getElementById('loginScreen');
+        const appScreen      = document.getElementById('appScreen');
+        const loginError     = document.getElementById('loginError');
+        const roomsGrid      = document.getElementById('roomsGrid');
+        const statsForesteria = document.getElementById('statsForesteria');
+        const modal          = document.getElementById('actionModal');
+        const modalMessage   = document.getElementById('modalMessage');
+        const standbyBtn     = document.getElementById('modalStandbyBtn');
+        const assenteBtn     = document.getElementById('modalAssenteBtn');
+        const attivitaBtn    = document.getElementById('modalAttivitaBtn');
+        const cancelBtn      = document.getElementById('modalCancelBtn');
+        const currentDateSpan = document.getElementById('currentDate');
+
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const formatted = now.toLocaleDateString('it-IT', options);
+            currentDateSpan.textContent = `| ${formatted.charAt(0).toUpperCase() + formatted.slice(1)}`;
+        }
+        updateCurrentDate();
+
+        function showChoiceDialog(studentName) {
+            modalMessage.textContent = `Scegli stato per ${studentName}`;
+            modal.style.display = 'flex';
+            return new Promise((resolve) => { pendingResolve = resolve; });
+        }
+
+        function closeModal(resolveValue = null) {
+            modal.style.display = 'none';
+            if (pendingResolve) { pendingResolve(resolveValue); pendingResolve = null; }
+        }
+
+        standbyBtn.onclick  = () => closeModal('standby');
+        assenteBtn.onclick  = () => closeModal('assente');
+        attivitaBtn.onclick = () => closeModal('attivita');
+        cancelBtn.onclick   = () => closeModal(null);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(null); });
+
+        function getStudentId(studente, room) {
+            return `${studente.cognome}_${studente.nome}_${room}`.replace(/[^a-zA-Z0-9_-]/g, '_');
+        }
+
+        async function setStatoStudente(id, scelta) {
+            if (scelta === null) return;
+            const statoCorrente = assenzeData[id] || {};
+            let isAlreadyActive = false;
+            if (scelta === 'standby'  && statoCorrente.assente)   isAlreadyActive = true;
+            if (scelta === 'assente'  && statoCorrente.confermato) isAlreadyActive = true;
+            if (scelta === 'attivita' && statoCorrente.attivita)   isAlreadyActive = true;
+            let nuovoStato = isAlreadyActive ? null : { assente: false, confermato: false, attivita: false };
+            if (!isAlreadyActive) {
+                if (scelta === 'standby')  nuovoStato.assente   = true;
+                if (scelta === 'assente')  nuovoStato.confermato = true;
+                if (scelta === 'attivita') nuovoStato.attivita   = true;
+            }
+            await set(ref(db, `assenze/${id}`), nuovoStato);
+        }
+
+        async function salvaForesteria(id, nome) {
+            await set(ref(db, `assenze/${id}`), nome.trim()
+                ? { occupato: true, nomeOccupante: nome.trim() }
+                : null);
+        }
+
+        window.login = async () => {
+            const email    = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            try { await signInWithEmailAndPassword(auth, email, password); }
+            catch (e) { loginError.textContent = 'Email o password non validi'; }
+        };
+
+        window.logout = async () => { if (confirm('Vuoi uscire?')) await signOut(auth); };
+
+        window.resetAssenze = async () => {
+            if (!confirm('Resettare tutte le assenze, conferme, attività e foresteria?')) return;
+            const updates = {};
+            Object.keys(assenzeData).forEach(id => { updates[`assenze/${id}`] = null; });
+            if (Object.keys(updates).length > 0) await update(ref(db), updates);
+            else alert('Nessuna registrazione presente.');
+        };
+
+        window.stampaReport = () => {
+            const ora  = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+            const data = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            document.getElementById('printTimestamp').textContent = `Aggiornamento ${data} ore ${ora}`;
+            window.print();
+        };
+
+        function creaStudenteElement(studente, room) {
+            const id          = getStudentId(studente, room);
+            const stato       = assenzeData[id] || {};
+            const isForesteria = studente.classe === 'Foresteria';
+            const isNota       = studente.cognome === 'NOTE';
+
+            const div = document.createElement('div');
+            div.className = 'student-item';
+
+            if (isNota) {
+                div.className += ' nota-row';
+                div.innerHTML = `<div class="student-name">${studente.nome}</div>`;
+                return div;
+            }
+
+            if (isForesteria) {
+                div.className = `student-item foresteria-row ${stato.occupato ? 'foresteria-occupato' : ''}`;
+                div.innerHTML = `
+                    <span class="student-name">Foresteria ${studente.nome}</span>
+                    <input type="text" class="foresteria-input" placeholder="Nome ospite..." value="${stato.nomeOccupante || ''}">
+                `;
+                div.querySelector('input').addEventListener('change', (e) => salvaForesteria(id, e.target.value));
+                return div;
+            }
+
+            if (stato.assente)   div.classList.add('stato-assente');
+            if (stato.confermato) div.classList.add('stato-confermato');
+            if (stato.attivita)  div.classList.add('stato-attivita');
+
+            let statusHtml = '';
+            if (stato.assente)    statusHtml = '<div class="student-status status-assente">❓ STAND-BY</div>';
+            if (stato.confermato) statusHtml = '<div class="student-status status-confermato">❌ ASSENTE</div>';
+            if (stato.attivita)   statusHtml = '<div class="student-status status-attivita">⚙️ ATTIVITÀ</div>';
+
+            div.innerHTML = `
+                <div class="student-name">${studente.cognome} ${studente.nome}</div>
+                <div class="student-class">${studente.classe}</div>
+                ${statusHtml}
+            `;
+
+            div.addEventListener('click', async (e) => {
+                if (e.target.tagName === 'INPUT') return;
+                const scelta = await showChoiceDialog(`${studente.cognome} ${studente.nome}`);
+                if (scelta !== null) await setStatoStudente(id, scelta);
+            });
+
+            return div;
+        }
+
+        function generaGriglia() {
+            if (!studentiData.length) return;
+            const stanze = {};
+            let fTot = 0, fOcc = 0;
+
+            studentiData.forEach(s => {
+                if (!stanze[s.room]) stanze[s.room] = [];
+                stanze[s.room].push(s);
+                if (s.classe === 'Foresteria') {
+                    fTot++;
+                    if (assenzeData[getStudentId(s, s.room)]?.occupato) fOcc++;
+                }
+            });
+
+            statsForesteria.textContent = `Posti liberi: ${fTot - fOcc}/${fTot}`;
+            roomsGrid.innerHTML = '';
+
+            Object.keys(stanze).sort((a, b) => Number(a) - Number(b)).forEach(room => {
+                const card = document.createElement('div');
+                card.className = 'room-card';
+                card.innerHTML = `<div class="room-title">${room}</div>`;
+                const list = document.createElement('div');
+                list.className = 'students-list';
+                stanze[room].forEach(s => list.appendChild(creaStudenteElement(s, room)));
+                card.appendChild(list);
+                roomsGrid.appendChild(card);
+            });
+        }
+
+        document.getElementById('stampaBtn').addEventListener('click', stampaReport);
+        document.getElementById('resetBtn').addEventListener('click', resetAssenze);
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginScreen.style.display = 'none';
+                appScreen.style.display   = 'block';
+                onValue(ref(db, 'anagrafica'), (s) => {
+                    const d = s.val();
+                    studentiData = d ? (Array.isArray(d) ? d : Object.values(d)).filter(x => x && x.cognome) : [];
+                    generaGriglia();
+                });
+                onValue(ref(db, 'assenze'), (s) => { assenzeData = s.val() || {}; generaGriglia(); });
+            } else {
+                loginScreen.style.display = 'block';
+                appScreen.style.display   = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

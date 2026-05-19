@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cruscotto Operativo — SyncPanel</title>
+<link rel="stylesheet" href="css/convitto-theme.css">
+<link rel="stylesheet" href="css/cruscotto-style.css">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:99999;">
+    <div style="background:var(--surface);border:1px solid var(--border-2);padding:40px;border-radius:24px;box-shadow:var(--shadow-lg);width:320px;text-align:center;">
+        <h2 style="margin-bottom:8px;font-size:1.1rem;letter-spacing:0.06em;text-transform:uppercase;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Accesso Cruscotto</h2>
+        <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:24px;">Inserisci le credenziali per continuare</p>
+        <input type="email" id="loginEmail" placeholder="Email" style="width:100%;padding:11px 14px;margin-bottom:12px;background:var(--bg-3);border:1px solid var(--border-2);border-radius:12px;color:var(--text);font-family:var(--font);font-size:0.85rem;outline:none;box-sizing:border-box;">
+        <input type="password" id="loginPassword" placeholder="Password" style="width:100%;padding:11px 14px;margin-bottom:20px;background:var(--bg-3);border:1px solid var(--border-2);border-radius:12px;color:var(--text);font-family:var(--font);font-size:0.85rem;outline:none;box-sizing:border-box;">
+        <button onclick="login()" style="width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#0f1117;font-weight:700;font-family:var(--font);font-size:0.9rem;cursor:pointer;letter-spacing:0.05em;transition:all 0.2s;">ACCEDI</button>
+        <div id="loginError" style="color:var(--absent);margin-top:14px;font-size:0.82rem;"></div>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <div>
+            <h1><a href="index.html">Cruscotto Operativo</a></h1>
+            <div id="todayDate" class="header-meta">Caricamento data...</div>
+        </div>
+        <div id="digitalClock" class="header-clock">00:00:00</div>
+        <div class="header-actions">
+            <div id="connection-status" class="status-badge connected">🟢 Connesso</div>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <!-- Note -->
+    <div class="note-toolbar-container">
+        <div class="note-content">
+            <span class="note-icon">📌</span>
+            <textarea id="dailyNotes" placeholder="Inserisci note, promemoria o comunicazioni..." class="note-input" rows="2"></textarea>
+            <button class="clear-note-btn" onclick="cancellaNote()" title="Svuota note">✕</button>
+        </div>
+    </div>
+
+    <div id="info-reset" style="text-align:right;font-size:0.7em;color:var(--absent);margin-top:-10px;margin-bottom:16px;">
+        Ultimo aggiornamento: MAI
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="btn-toolbar" style="background:var(--accent);" onclick="togglePanel()">P ⚡ PP</button>
+        <input type="text" id="search" placeholder="Cerca studente..." onkeyup="applicaFiltri()">
+        <div style="display:flex;align-items:center;gap:6px;">
+            <span class="room-label">ROOM</span>
+            <input type="number" id="roomInput" placeholder="n°" min="101" max="221"
+                   onfocus="this.oldValue=this.value;"
+                   oninput="gestisciSaltoStanze(this);validaERicerca();">
+        </div>
+        <button class="btn-reset" onclick="resetDati('soloManuali')" title="Reset Giornaliero">🗑️ Reset Day</button>
+        <button class="btn-reset-complete" onclick="resetDati('completo')" title="Reset Completo">⚠️ Reset Full</button>
+    </div>
+
+    <!-- Turni -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+        <div class="day-box" style="border-bottom:3px solid var(--btn-t1);" onclick="setTurno(1)">1° TURNO (18:30)</div>
+        <div class="day-box" style="border-bottom:3px solid var(--btn-t2);" onclick="setTurno(2)">2° TURNO (19:15)</div>
+        <div class="day-box" style="border-bottom:3px solid var(--btn-t3);" onclick="generaPopUpStampaConvitto()">STAMPA CONVITTO</div>
+        <div class="day-box" style="border-bottom:3px solid var(--btn-t4);" onclick="generaPopUpStampaDinner()">STAMPA DINNER</div>
+    </div>
+
+    <div id="listaStudenti"></div>
+</div>
+
+<!-- Side Panel -->
+<div id="sidePanel" style="position:fixed;top:0;right:-350px;width:320px;height:100%;transition:0.3s;z-index:1000;padding:24px;overflow-y:auto;display:flex;flex-direction:column;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+        <h3 style="margin:0;">Gestione Permessi</h3>
+        <button onclick="togglePanel()" style="border:none;background:rgba(255,255,255,0.07);color:var(--text-2);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1.2em;display:flex;align-items:center;justify-content:center;">&times;</button>
+    </div>
+    <hr>
+    <h3 style="margin-top:10px;">Programmazione Assenze</h3>
+    <select id="selectStudente" style="margin-bottom:8px;"><option value="">-- Seleziona Nome --</option></select>
+    <select id="selectClasse" style="margin-bottom:8px;"><option value="">-- Seleziona Classe --</option></select>
+    <input type="date" id="dataDal" style="margin-bottom:8px;">
+    <input type="date" id="dataAl" style="margin-bottom:12px;">
+    <button onclick="aggiungiAssenza()" style="width:100%;background:var(--absent);color:white;border:none;padding:10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-weight:700;font-size:0.85rem;">➕ Aggiungi Assenza</button>
+    <hr style="margin:20px 0;">
+    <h3>Lista Assenze</h3>
+    <div id="listaAssenze" style="margin-bottom:20px;"></div>
+    <hr>
+    <h3>Permessi Permanenti</h3>
+    <div id="listaPermessiContent"></div>
+</div>
+
+<script src="js/studenti_25-26.js"></script>
+<script src="js/convittori.js"></script>
+<script src="js/permessi.js"></script>
+<script src="js/firebase-cruscotto-config.js"></script>
+<script src="js/cruscotto-script.js"></script>
+<script src="js/firebase-cruscotto-sync.js"></script>
+
+<script>
+window.addEventListener('load', function() {
+    if (typeof resetDati === 'function') {
+        console.log('✅ resetDati definita');
+    } else {
+        console.error('❌ resetDati NON definita');
+    }
+});
+</script>
+</body>
+</html>

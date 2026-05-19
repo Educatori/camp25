@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accesso — Convitto 2025</title>
+    <link rel="stylesheet" href="css/convitto-theme.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--bg);
+            padding: 24px;
+        }
+
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border-2);
+            border-radius: var(--radius-xl);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            margin-bottom: 16px;
+        }
+
+        .login-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .login-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .field {
+            margin-bottom: 14px;
+            text-align: left;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-2);
+            margin-bottom: 6px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 11px 14px;
+            background: var(--bg-3);
+            border: 1px solid var(--border-2);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 0.88rem;
+            outline: none;
+            transition: border-color var(--t), box-shadow var(--t);
+            box-sizing: border-box;
+        }
+
+        .field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .field input::placeholder { color: var(--text-muted); }
+
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            margin-top: 8px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            color: var(--text-inv);
+            border: none;
+            border-radius: var(--radius);
+            font-family: var(--font);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: all var(--t);
+        }
+
+        .btn-login:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-login:active { transform: translateY(0); }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: var(--absent-dim);
+            border: 1px solid rgba(220,38,38,0.25);
+            border-radius: var(--radius-sm);
+            color: var(--absent);
+            font-size: 0.82rem;
+            display: none;
+        }
+
+        .error-msg.visible { display: block; }
+
+        .login-footer {
+            margin-top: 24px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <img src="assets/Logo.png" alt="Logo" class="login-logo"
+         onerror="this.style.display='none'">
+    <div class="login-title">Convitto 2025</div>
+    <div class="login-sub">Accesso riservato al personale autorizzato</div>
+
+    <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="nome@esempio.it" autocomplete="email">
+    </div>
+    <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">ACCEDI</button>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="login-footer">
+        Accesso protetto · Solo utenti autorizzati
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp }                    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
+                                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { firebaseConfig }                   from "./js/firebase-roomcloud-config.js";
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Se già autenticato → redirect alla pagina di destinazione o index
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const params   = new URLSearchParams(window.location.search);
+            const redirect = params.get("redirect") || "index.html";
+            window.location.href = redirect;
+        }
+    });
+
+    // Invio con Enter
+    document.getElementById("password").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") doLogin();
+    });
+    document.getElementById("email").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") document.getElementById("password").focus();
+    });
+
+    window.doLogin = async () => {
+        const email    = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const btn      = document.getElementById("loginBtn");
+        const err      = document.getElementById("errorMsg");
+
+        if (!email || !password) {
+            err.textContent = "Inserisci email e password.";
+            err.classList.add("visible");
+            return;
+        }
+
+        btn.disabled    = true;
+        btn.textContent = "Accesso in corso…";
+        err.classList.remove("visible");
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            // onAuthStateChanged gestirà il redirect
+        } catch (e) {
+            btn.disabled    = false;
+            btn.textContent = "ACCEDI";
+            const msgs = {
+                "auth/user-not-found":  "Email non riconosciuta.",
+                "auth/wrong-password":  "Password errata.",
+                "auth/invalid-email":   "Formato email non valido.",
+                "auth/too-many-requests": "Troppi tentativi. Riprova tra qualche minuto.",
+            };
+            err.textContent = msgs[e.code] || "Errore di accesso. Riprova.";
+            err.classList.add("visible");
+        }
+    };
+</script>
+</body>
+</html>

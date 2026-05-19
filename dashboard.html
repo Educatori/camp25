@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Convitto & Dinner</title>
+    <link rel="stylesheet" href="css/convitto-theme.css">
+    <link rel="stylesheet" href="css/dashboard-style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1><a href="index.html">Convitto & Dinner</a></h1>
+            <div id="todayDate" class="header-meta">Caricamento data...</div>
+        </div>
+        <div id="digitalClock" class="header-clock">00:00:00</div>
+    </header>
+
+    <!-- Note -->
+    <div class="note-toolbar-container">
+        <div class="note-content">
+            <span class="note-icon">📌</span>
+            <textarea id="dailyNotes" placeholder="Inserisci note, promemoria o comunicazioni..." class="note-input" rows="2"></textarea>
+            <button class="clear-note-btn" onclick="cancellaNote()" title="Svuota note">✕</button>
+        </div>
+    </div>
+
+    <div id="info-reset" style="text-align:right;font-size:0.7em;color:var(--absent);margin-top:-10px;margin-bottom:16px;">
+        Ultimo aggiornamento: MAI
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="btn-toolbar" style="background:var(--accent);" onclick="togglePanel()">P ⚡ PP</button>
+        <input type="text" id="search" placeholder="Cerca studente..." onkeyup="applicaFiltri()">
+        <div style="display:flex;align-items:center;gap:6px;">
+            <span class="room-label">ROOM</span>
+            <input type="number" id="roomInput" placeholder="n°" min="101" max="221"
+                   onfocus="this.oldValue=this.value;"
+                   oninput="gestisciSaltoStanze(this);validaERicerca();">
+        </div>
+        <button class="btn-reset" onclick="resetDati()">🗑️ Reset</button>
+    </div>
+
+    <!-- Turni -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+        <div class="day-box" style="border-bottom:3px solid var(--btn-t1);" onclick="setTurno(1)">1° TURNO (18:30)</div>
+        <div class="day-box" style="border-bottom:3px solid var(--btn-t2);" onclick="setTurno(2)">2° TURNO (19:15)</div>
+        <div class="day-box" style="border-bottom:3px solid var(--btn-t3);" onclick="generaPopUpStampaConvitto()">STAMPA CONVITTO</div>
+        <div class="day-box" style="border-bottom:3px solid var(--btn-t4);" onclick="generaPopUpStampaDinner()">STAMPA DINNER</div>
+    </div>
+
+    <div id="listaStudenti"></div>
+</div>
+
+<!-- Side Panel -->
+<div id="sidePanel" style="position:fixed;top:0;right:-350px;width:320px;height:100%;transition:0.3s;z-index:1000;padding:24px;overflow-y:auto;display:flex;flex-direction:column;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+        <h3 style="margin:0;">Gestione Permessi</h3>
+        <button onclick="togglePanel()" style="border:none;background:rgba(255,255,255,0.07);color:var(--text-2);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1.2em;display:flex;align-items:center;justify-content:center;">&times;</button>
+    </div>
+    <hr>
+    <h3 style="margin-top:10px;">Programma Assenze</h3>
+    <select id="selectStudente" style="margin-bottom:8px;"><option value="">-- Seleziona Nome --</option></select>
+    <select id="selectClasse" style="margin-bottom:8px;"><option value="">-- Seleziona Classe --</option></select>
+    <input type="date" id="dataDal" style="margin-bottom:8px;">
+    <input type="date" id="dataAl" style="margin-bottom:12px;">
+    <button onclick="aggiungiAssenza()" style="width:100%;background:var(--absent);color:white;border:none;padding:10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-weight:700;font-size:0.85rem;">➕ Aggiungi Assenza</button>
+    <hr style="margin:20px 0;">
+    <h3>Lista Assenze</h3>
+    <div id="listaAssenze" style="margin-bottom:20px;"></div>
+    <hr>
+    <h3>Permessi Permanenti</h3>
+    <div id="listaPermessiContent"></div>
+</div>
+
+<script src="js/studenti_25-26.js"></script>
+<script src="js/convittori.js"></script>
+<script src="js/permessi.js"></script>
+<script src="js/dashboard-script.js"></script>
+
+<script>
+function resetDati() {
+    if (confirm("⚠ SEI SICURO? Questa azione cancellerà i dati della sessione corrente.")) {
+        localStorage.removeItem('datiConvitto');
+        localStorage.setItem('dataUltimoReset', new Date().toLocaleString('it-IT'));
+        location.reload();
+    }
+}
+
+window.addEventListener('load', () => {
+    const noteInput = document.getElementById('dailyNotes');
+    if (!noteInput) return;
+    const salvate = localStorage.getItem('note_convitto');
+    if (salvate) noteInput.value = salvate;
+    noteInput.addEventListener('input', () => {
+        localStorage.setItem('note_convitto', noteInput.value);
+    });
+});
+
+function cancellaNote() {
+    if (confirm("⚠️ Cancellare definitivamente le note?")) {
+        const n = document.getElementById('dailyNotes');
+        if (n) n.value = '';
+        localStorage.removeItem('note_convitto');
+    }
+}
+</script>
+</body>
+</html>
