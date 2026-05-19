@@ -1,15 +1,15 @@
 /* FIREBASE-CRUSCOTTO-CONFIG.JS */
 // Configurazione Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyCujVjW7Aorn0illq_2w50u8oAgWGJEBRY",
-    authDomain: "cruscotto-722bc.firebaseapp.com",
-    databaseURL: "https://cruscotto-722bc-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "cruscotto-722bc",
-    storageBucket: "cruscotto-722bc.firebasestorage.app",
-    messagingSenderId: "594198664103",
-    appId: "1:594198664103:web:cc50982af1a9fc757b5c82",
-    measurementId: "G-BVS9JG6HVC"
+apiKey: "AIzaSyA2CZmgpuWsaLXiKoSQmnigf67MJI44Rus",
+  authDomain: "anagrafica25.firebaseapp.com",
+  databaseURL: "https://anagrafica25-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "anagrafica25",
+  storageBucket: "anagrafica25.firebasestorage.app",
+  messagingSenderId: "724474113103",
+  appId: "1:724474113103:web:065ae533efb97d7a080e3a",
+  measurementId: "G-MBZW81SSH6"
 };
+
 
 // Inizializza Firebase con la sintassi compat
 firebase.initializeApp(firebaseConfig);
