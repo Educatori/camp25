@@ -1,12 +1,11 @@
 /* FIREBASE-ROOMCLOUD-CONFIG.JS */
 // firebase-roomcloud-config.js
-export const firebaseConfig = {
-  apiKey: "AIzaSyAlvE48F1flTIZ1KyU_FKIV30w60pWFphE",
-  authDomain: "rooms-2ff73.firebaseapp.com",
-  databaseURL: "https://rooms-2ff73-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "rooms-2ff73",
-  storageBucket: "rooms-2ff73.firebasestorage.app",
-  messagingSenderId: "955413485941",
-  appId: "1:955413485941:web:e878ea05b066dd78bd9b3c",
-  measurementId: "G-NSGBDTEJNQ"
+apiKey: "AIzaSyA2CZmgpuWsaLXiKoSQmnigf67MJI44Rus",
+  authDomain: "anagrafica25.firebaseapp.com",
+  databaseURL: "https://anagrafica25-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "anagrafica25",
+  storageBucket: "anagrafica25.firebasestorage.app",
+  messagingSenderId: "724474113103",
+  appId: "1:724474113103:web:065ae533efb97d7a080e3a",
+  measurementId: "G-MBZW81SSH6"
 };
