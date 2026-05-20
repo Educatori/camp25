@@ -156,7 +156,7 @@ header button:hover {
 
 .student-row.highlight-lab {
     border-bottom-color: var(--lab);
-    border-color: rgba(243, 156, 18, 0.25);
+    border-color: var(--border-2);
     background: var(--lab-dim);
 }
 
@@ -246,18 +246,18 @@ header button:hover {
 }
 
 /* Stati attivi pulsanti interni alle card */
-.active-ass {
-    background: var(--absent) !important;
-    color: #ffffff !important;
-    border-color: transparent !important;
-    box-shadow: 0 2px 10px var(--absent-dim) !important;
+.btns button.active-ass {
+    background: var(--absent);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 2px 10px var(--absent-dim);
 }
 
-.active-din {
-    background: var(--dinner-no) !important;
-    color: #ffffff !important;
-    border-color: transparent !important;
-    box-shadow: 0 2px 10px var(--dinner-no-dim) !important;
+.btns button.active-din {
+    background: var(--dinner-no);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 2px 10px var(--dinner-no-dim);
 }
 
 /* ─── BTN SWITCH TURNO ──────────────────────────────────────── */
@@ -278,10 +278,10 @@ header button:hover {
 .btn-switch:hover { background: var(--surface-3); }
 
 .btn-switch.modificato {
-    background: var(--switched) !important;
-    border-color: transparent !important;
+    background: var(--switched);
+    border-color: transparent;
     color: #ffffff;
-    box-shadow: 0 2px 10px var(--accent-2-dim) !important;
+    box-shadow: 0 2px 10px var(--accent-2-dim);
 }
 
 /* ─── TURNI ROW ─────────────────────────────────────────────── */
