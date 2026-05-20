@@ -5,86 +5,163 @@
     <title>BUS ore 8 — Trasporto Mattino</title>
     <link rel="stylesheet" href="css/campus-theme.css">
     <link rel="stylesheet" href="css/bus-style.css">
+    <style>
+        /* Stili di fallback */
+        body { font-family: system-ui, sans-serif; margin: 20px; background: #f5f7fa; }
+        .grid-wrapper { display: flex; gap: 20px; flex-wrap: wrap; }
+        .macro-column { flex: 1; min-width: 280px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .column-header { display: flex; background: #1e3a5f; color: white; font-weight: bold; }
+        .column-header > div { padding: 12px 8px; flex: 1; }
+        .row-student { display: flex; border-bottom: 1px solid #e2e8f0; }
+        .row-student > div { padding: 10px 8px; flex: 1; }
+        .cell-room { flex: 0.6; font-weight: 600; color: #1e3a5f; }
+        .cell-name { flex: 2; }
+        .cell-class { flex: 0.8; }
+        .cell-check { flex: 0.4; text-align: center; }
+        .cell-notes { flex: 1.2; }
+        .no-print { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 15px; }
+        .btn { padding: 8px 16px; background: #c49a6c; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: 500; }
+        .btn:hover { background: #b8860b; }
+        .header-main { background: white; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .print-logo { width: 45px; height: 45px; background: #c49a6c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; }
+        .loading-message, .error-message { padding: 40px; text-align: center; color: #666; }
+        .error-message { color: #dc2626; background: #fee2e2; }
+    </style>
 </head>
 <body>
 
 <div class="no-print">
-    <button class="btn" onclick="window.print()">STAMPA</button>
-    <button class="btn" id="logoutBtn" style="background:#6b7280;">🚪 LOGOUT</button>
+    <button class="btn" onclick="window.print()">🖨️ STAMPA</button>
+    <button class="btn" id="logoutBtn" style="background: #6b7280;">🚪 LOGOUT</button>
 </div>
 
 <div class="header-main">
-    <img src="assets/Logo.png" alt="Logo" class="print-logo">
-    <h1>Bus Mattino — ore 8</h1>
+    <div class="print-logo">C</div>
+    <h1 style="margin:0; font-size:1.5rem;">BUS Mattino — ore 8:00</h1>
 </div>
 
 <div class="grid-wrapper" id="mainWrapper">
-    <!-- colonne come prima -->
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
+            <div class="cell-room">ROOM</div>
+            <div class="cell-name">NOME</div>
+            <div class="cell-class">CLASSE</div>
+            <div class="cell-check">✓</div>
+            <div class="cell-notes">NOTE</div>
         </div>
-        <div id="col0"></div>
+        <div id="col0" style="min-height: 200px;"></div>
     </div>
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
+            <div class="cell-room">ROOM</div>
+            <div class="cell-name">NOME</div>
+            <div class="cell-class">CLASSE</div>
+            <div class="cell-check">✓</div>
+            <div class="cell-notes">NOTE</div>
         </div>
-        <div id="col1"></div>
+        <div id="col1" style="min-height: 200px;"></div>
     </div>
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
+            <div class="cell-room">ROOM</div>
+            <div class="cell-name">NOME</div>
+            <div class="cell-class">CLASSE</div>
+            <div class="cell-check">✓</div>
+            <div class="cell-notes">NOTE</div>
         </div>
-        <div id="col2"></div>
+        <div id="col2" style="min-height: 200px;"></div>
     </div>
 </div>
 
 <script type="module">
-    import { initAuth, getStudenti, getStudentiBus8, logout } from "./js/auth.js";
+    // Import dinamico con gestione errori
+    let auth, getStudenti, getStudentiBus8, logout, initAuth;
     
-    // Attiva protezione login
-    await initAuth(true, "login.html");
+    try {
+        const authModule = await import("./js/auth.js");
+        auth = authModule;
+        getStudenti = authModule.getStudenti;
+        getStudentiBus8 = authModule.getStudentiBus8;
+        logout = authModule.logout;
+        initAuth = authModule.initAuth;
+        console.log("✅ Modulo auth.js caricato correttamente");
+    } catch (error) {
+        console.error("❌ Errore nel caricamento di auth.js:", error);
+        document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore: Impossibile caricare il modulo di autenticazione. Verifica che il file js/auth.js esista.</div>`;
+        document.getElementById('col1').innerHTML = '';
+        document.getElementById('col2').innerHTML = '';
+    }
     
-    // Carica e visualizza studenti bus 8:00
+    // Se il modulo è stato caricato, procedi
+    if (auth && initAuth) {
+        try {
+            // Attiva protezione login
+            console.log("Inizializzazione autenticazione...");
+            const user = await initAuth(true, "login.html");
+            console.log("Utente autenticato:", user?.email || "nessuno");
+            
+            // Se siamo qui, l'utente è autenticato (o redirect è avvenuto)
+            if (user) {
+                await caricaLista();
+            }
+        } catch (error) {
+            console.error("❌ Errore autenticazione:", error);
+            document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore autenticazione: ${error.message}</div>`;
+        }
+    }
+    
     async function caricaLista() {
-        const tutti = await getStudenti();
-        const studentiBus8 = getStudentiBus8(tutti);
-        
-        // Ordina per stanza
-        studentiBus8.sort((a, b) => {
-            if (a.stanza < b.stanza) return -1;
-            if (a.stanza > b.stanza) return 1;
-            return a.nomeCompleto.localeCompare(b.nomeCompleto);
-        });
-        
-        // Distribuisci su 3 colonne
-        const colonne = [[], [], []];
-        studentiBus8.forEach((s, i) => colonne[i % 3].push(s));
-        
-        // Renderizza (funzione di rendering come prima)
-        renderColonna(0, colonne[0]);
-        renderColonna(1, colonne[1]);
-        renderColonna(2, colonne[2]);
+        try {
+            console.log("Caricamento studenti...");
+            
+            if (!getStudenti) {
+                throw new Error("Funzione getStudenti non disponibile");
+            }
+            
+            const tutti = await getStudenti();
+            console.log(`Trovati ${tutti.length} studenti totali`);
+            
+            if (!tutti || tutti.length === 0) {
+                document.getElementById('col0').innerHTML = '<div class="loading-message">⚠️ Nessuno studente trovato nel database. Verifica che il nodo "studenti" esista su Firebase.</div>';
+                return;
+            }
+            
+            const studentiBus8 = getStudentiBus8 ? getStudentiBus8(tutti) : tutti.filter(s => s.busMattina8 === true);
+            console.log(`Di cui ${studentiBus8.length} con bus 8:00`);
+            
+            if (studentiBus8.length === 0) {
+                document.getElementById('col0').innerHTML = '<div class="loading-message">⚠️ Nessuno studente con busMattina8 = true. Aggiungi il campo busMattina8: true agli studenti nel database.</div>';
+                return;
+            }
+            
+            // Ordina per stanza
+            studentiBus8.sort((a, b) => {
+                const stanzaA = parseInt(a.stanza) || 999;
+                const stanzaB = parseInt(b.stanza) || 999;
+                if (stanzaA !== stanzaB) return stanzaA - stanzaB;
+                return (a.nomeCompleto || '').localeCompare(b.nomeCompleto || '');
+            });
+            
+            // Distribuisci su 3 colonne
+            const colonne = [[], [], []];
+            studentiBus8.forEach((s, i) => colonne[i % 3].push(s));
+            
+            // Renderizza colonne
+            renderColonna(0, colonne[0]);
+            renderColonna(1, colonne[1]);
+            renderColonna(2, colonne[2]);
+            
+        } catch (error) {
+            console.error("❌ Errore caricamento lista:", error);
+            document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore: ${error.message}</div>`;
+        }
     }
     
     function renderColonna(indice, studenti) {
         const container = document.getElementById(`col${indice}`);
         if (!container) return;
         
-        if (studenti.length === 0) {
+        if (!studenti || studenti.length === 0) {
             container.innerHTML = '<div class="loading-message">— nessun passeggero —</div>';
             return;
         }
@@ -93,11 +170,11 @@
         for (let s of studenti) {
             html += `
                 <div class="row-student">
-                    <div class="cell-room">${escapeHtml(s.stanza)}</div>
-                    <div class="cell-name">${escapeHtml(s.nomeCompleto)}</div>
-                    <div class="cell-class">${escapeHtml(s.classe)}</div>
+                    <div class="cell-room">${escapeHtml(s.stanza || '—')}</div>
+                    <div class="cell-name">${escapeHtml(s.nomeCompleto || s.nome || '?')}</div>
+                    <div class="cell-class">${escapeHtml(s.classe || '—')}</div>
                     <div class="cell-check"><input type="checkbox"></div>
-                    <div class="cell-notes"><input type="text" placeholder="Note"></div>
+                    <div class="cell-notes"><input type="text" placeholder="Note trasporto"></div>
                 </div>
             `;
         }
@@ -106,7 +183,7 @@
     
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, (m) => {
+        return String(str).replace(/[&<>]/g, (m) => {
             if (m === '&') return '&amp;';
             if (m === '<') return '&lt;';
             if (m === '>') return '&gt;';
@@ -115,10 +192,13 @@
     }
     
     // Logout
-    document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
-    
-    // Avvia
-    caricaLista();
+    document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+        if (logout) {
+            await logout();
+        } else {
+            window.location.href = "login.html";
+        }
+    });
 </script>
 </body>
 </html>
