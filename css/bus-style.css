@@ -3,298 +3,159 @@
    Estensione dinamica coerente con CAMPUS-THEME.CSS
    ============================================================ */
 
-/* ─── BASE ──────────────────────────────────────────────────── */
-body {
-    font-family: var(--font, sans-serif);
-    margin: 0;
-    padding: 10px;
-    font-size: 11px;
-    background: var(--bg);
-    color: var(--text);
-}
 
-/* ─── HEADER ────────────────────────────────────────────────── */
 .header-main {
     text-align: center;
-    border-bottom: 3px solid var(--accent-dim);
-    margin-bottom: 15px;
+    border-bottom: 2px solid var(--border-2);
+    margin-bottom: 12px;
     padding: 8px 0 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
     position: relative;
-    min-height: 56px;
 }
-
-.print-logo {
-    display: none;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 44px;
-    width: auto;
-    object-fit: contain;
-}
-
 h1 {
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    background: linear-gradient(90deg, var(--accent), var(--switched, var(--accent-2)));
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
-
-h1 a {
-    text-decoration: none;
-    color: inherit;
+.subtitle {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: var(--text-2);
+    font-family: var(--font-mono);
 }
 
-/* ─── GRIGLIA ───────────────────────────────────────────────── */
+/* Override logo in stampa (stessa altezza del base) */
+@media print {
+    .print-logo { height: 44px; }
+}
+
+/* Griglia */
 .grid-wrapper {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     column-gap: 16px;
-    row-gap: 10px;
 }
-
-/* ─── INTESTAZIONE COLONNA ──────────────────────────────────── */
 .column-header {
     display: flex;
-    background: var(--surface-3, var(--bg-2));
-    color: var(--text);
+    background: var(--bg-2);
+    color: var(--text-2);
     font-weight: 700;
-    padding: 6px 8px;
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    font-size: 9px;
+    padding: 5px 4px;
+    border-radius: 6px 6px 0 0;
+    font-size: 8px;
     margin-bottom: 2px;
-    letter-spacing: 0.06em;
     text-transform: uppercase;
-    border: 1px solid var(--border-2);
+    border: 1px solid var(--border);
     border-bottom: none;
 }
-
-/* ─── RIGA STUDENTE ─────────────────────────────────────────── */
-.row-student {
+.student-row {
     display: flex;
     align-items: center;
-    padding: 4px 8px;
-    margin-bottom: 2px;
-    border: 1px solid var(--border-2);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    transition: all var(--t, 0.15s);
-    page-break-inside: avoid;
-    box-shadow: var(--shadow-sm);
+    padding: 3px 5px;
+    margin-bottom: 1px;
+    border: 0.5px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
 }
-
-.row-student:nth-child(even) { 
-    background: var(--surface-2); 
-}
-
-.row-student:hover { 
-    border-color: var(--accent);
-    background: var(--accent-dim); 
-}
-
-/* Stati speciali e righe depennate */
-.row-student.row-crossed {
+.student-row:nth-child(even) { background: var(--surface-2); }
+.student-row:hover { background: var(--accent-dim); }
+.row-crossed {
     text-decoration: line-through;
     opacity: 0.45;
     background: var(--absent-dim) !important;
-    border-color: var(--border) !important;
 }
-
-/* Badge o background di gruppo opzionali */
 .bg-5a-g1 { background: var(--accent-dim) !important; }
 .bg-5a-g2 { background: var(--accent-2-dim) !important; }
 .bg-5b-g1 { background: var(--lab-dim) !important; }
 .bg-5b-g2 { background: var(--absent-dim) !important; }
-
-/* ─── CELLE INTERNE ─────────────────────────────────────────── */
+.class-separator {
+    height: 3px;
+    background: var(--border-2);
+    margin: 2px 0;
+    border-radius: 2px;
+}
 .cell-room {
-    width: 32px;
+    width: 28px;
     font-weight: 700;
-    font-family: var(--font-mono, monospace);
-    font-size: 10px;
+    font-family: var(--font-mono);
+    font-size: 8.5px;
     color: var(--accent);
-    border-right: 1px solid var(--border-2);
+    border-right: 1px solid var(--border);
     flex-shrink: 0;
 }
-
 .cell-name {
     flex-grow: 1;
-    padding-left: 8px;
+    padding-left: 5px;
+    font-size: 9px;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 10.5px;
-    color: var(--text);
 }
-
-.cell-name b { 
-    color: var(--text); 
-    text-transform: uppercase;
-}
-
 .cell-class {
-    width: 52px;
+    width: 48px;
     text-align: center;
-    font-size: 9px;
-    color: var(--text-2, var(--text-muted));
-    font-weight: 600;
+    font-size: 8px;
+    color: var(--text-muted);
     flex-shrink: 0;
 }
-
 .cell-check {
-    width: 44px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 38px;
+    text-align: center;
     flex-shrink: 0;
 }
-
 .cell-notes {
-    width: 90px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 58px;
+    text-align: center;
     flex-shrink: 0;
 }
-
-/* Input di testo delle note dentro la cella */
-.cell-notes input.note-input {
-    width: 100%;
-    padding: 3px 6px;
-    border: 1px solid var(--border-2);
-    border-radius: var(--radius-sm);
-    font-size: 9px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    transition: border-color var(--t);
+.line-notes {
+    width: 88%;
+    border-bottom: 0.5px solid var(--border-2);
+    height: 10px;
+    margin: 0 auto;
 }
-
-.cell-notes input.note-input:focus {
-    border-color: var(--accent);
-    outline: none;
-}
-
-/* ─── BOTTONI TOOLBAR INTERFACCIA ──────────────────────────── */
-.no-print { 
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 12px 0; 
-}
-
-.btn {
-    padding: 8px 24px;
-    background: linear-gradient(90deg, var(--accent), var(--switched, var(--accent-2)));
-    color: var(--text-inv);
-    border: none;
+.check-box {
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid var(--border-2);
+    border-radius: 2px;
+    margin: 0 auto;
+    background: var(--surface-2);
     cursor: pointer;
-    border-radius: var(--radius-xl);
-    font-weight: 700;
-    font-family: var(--font, sans-serif);
-    font-size: 11px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: all var(--t, 0.2s);
-    box-shadow: var(--shadow-sm);
+    transition: all 0.15s;
+    position: relative;
+}
+.check-box:hover { border-color: var(--ok); }
+.check-box.checked {
+    background: var(--ok-dim);
+    border-color: var(--ok);
+}
+.check-box.checked::after {
+    content: '✔';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--ok);
 }
 
-.btn:hover {
-    filter: brightness(1.15);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow);
-}
-
-/* ─── MEDIA QUERY STAMPA DEDICATA (Orizzontale / Sempre Chiara) ── */
+/* Stampa specifica per bus (A4 landscape) */
 @media print {
-    * { 
-        -webkit-print-color-adjust: exact !important; 
-        print-color-adjust: exact !important; 
-    }
-
-    .no-print { 
-        display: none !important; 
-    }
-
-    body {
-        background: var(--print-bg, #ffffff) !important;
-        color: var(--print-text, #000000) !important;
-        padding: 0;
-        font-size: 8.5px;
-    }
-
-    .print-logo { 
-        display: block !important; 
-    }
-
-    .header-main {
-        border-bottom: 2px solid var(--print-header, #1a2236) !important;
-        margin-bottom: 10px;
-        padding-bottom: 4px;
-    }
-
-    h1 {
-        background: none !important;
-        -webkit-text-fill-color: var(--print-header, #1a2236) !important;
-        color: var(--print-header, #1a2236) !important;
-        font-size: 13px;
-    }
-
-    .column-header {
-        background: #e2e8f0 !important;
-        color: var(--print-header, #1a2236) !important;
-        border: 0.5px solid #a0aec0 !important;
-    }
-
-    .row-student {
-        border: 0.5px solid #a0aec0 !important;
-        background: var(--print-bg, #ffffff) !important;
-        box-shadow: none !important;
-        padding: 3px 6px;
-        margin-bottom: 0px;
-    }
-
-    .row-student:nth-child(even) { 
-        background: #f8fafc !important; 
-    }
-
-    .row-student.row-crossed {
-        opacity: 0.4;
-        background: #f1f5f9 !important;
-    }
-
-    .cell-room { 
-        color: var(--print-header, #1a2236) !important; 
-        border-right: 0.5px solid #a0aec0 !important;
-    }
-    
-    .cell-name, .cell-name b { 
-        color: var(--print-text, #000000) !important; 
-    }
-    
-    .cell-class { 
-        color: #475569 !important; 
-    }
-
-    .cell-notes input.note-input {
-        border: none !important;
-        background: transparent !important;
-        padding: 0;
-        font-size: 8px;
-    }
-
-    @page { 
-        size: A4 landscape; 
-        margin: 0.5cm; 
-    }
+    .student-row { border-color: #ccc !important; background: white !important; }
+    .student-row:nth-child(even) { background: #f5f5f5 !important; }
+    .bg-5b-g1 { background: #e8e8e8 !important; }
+    .bg-5b-g2 { background: #f2f2f2 !important; }
+    .cell-room { color: #1a2236 !important; }
+    .cell-name b { color: black !important; }
+    .check-box { border: 1.5px solid #333 !important; background: white !important; }
+    .check-box.checked::after { color: #2e7d32 !important; }
+    .class-separator { background: #1a2236 !important; }
+    @page { size: A4 landscape; margin: 0.8cm; }
 }
