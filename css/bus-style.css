@@ -174,7 +174,6 @@ h1 {
     transform: translateY(-1px);
     box-shadow: var(--shadow);
 }
-
 /* Stampa specifica per bus (A4 landscape) */
 @media print {
     .student-row { border-color: #ccc !important; background: white !important; }
