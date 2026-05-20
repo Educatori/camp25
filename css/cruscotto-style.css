@@ -1,29 +1,34 @@
 /* ============================================================
    DASHBOARD-STYLE.CSS / CRUSCOTTO-STYLE.CSS
-   Importa convitto-theme.css per le regole base
+   Estensione e override per il Cruscotto Studenti
+   Eredita e usa le definizioni base di CAMPUS-THEME.CSS
    ============================================================ */
 
 /* ─── VARIABILI OVERRIDE PER CRUSCOTTO ─────────────────────── */
 :root {
-    /* accenti card - usati negli script esistenti */
-    --p:             var(--accent);
-    --s:             var(--ok);
-    --d:             var(--absent);
-    --e:             var(--dinner-no);
-    --bg:            #0f1117;
-    --card-bg:       var(--surface);
-    --permessi:      var(--pp);
-    --highlight-lab: rgba(243,156,18,0.12);
-    --lab-text:      var(--lab);
-    --cambiati:      var(--switched);
-    --btn-inactive:  var(--surface-2);
-    --btn-color-1:   var(--btn-t1);
-    --btn-color-2:   var(--btn-t2);
-    --btn-color-3:   var(--btn-t3);
-    --btn-color-4:   var(--btn-t4);
-    --text-dark:     var(--text);
-    --text-muted:    var(--text-2);
-    --border-color:  var(--border);
+    /* Mappatura alias storici per script legacy */
+    --p:              var(--accent);
+    --s:              var(--ok);
+    --d:              var(--absent);
+    --e:              var(--dinner-no);
+    --card-bg:        var(--surface);
+    --permessi:       var(--pp);
+    --highlight-lab:  var(--lab-dim);
+    --lab-text:       var(--lab);
+    --cambiati:       var(--switched);
+    --text-dark:      var(--text);
+    --text-muted:     var(--text-2);
+    --border-color:   var(--border);
+
+    /* Specifica Cruscotto: mantiene il fondo scuro nativo */
+    --bg:             #0f1117;
+}
+
+/* Override locale per dispositivi mobile in Dark Mode (se necessario) */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+    :root {
+        --bg:         #0f1117; /* Mantiene la coerenza visiva dell'interfaccia */
+    }
 }
 
 /* ─── LAYOUT ────────────────────────────────────────────────── */
@@ -72,39 +77,38 @@ header h1 a {
 }
 
 #todayDate {
-    font-size: 0.78rem !important;
-    color: var(--text-2) !important;
-    font-family: var(--font-mono) !important;
-    opacity: 1 !important;
+    font-size: 0.78rem;
+    color: var(--text-2);
+    font-family: var(--font-mono);
     margin-top: 3px;
 }
 
 #digitalClock {
-    font-family: var(--font-mono) !important;
-    font-size: 1.8rem !important;
-    font-weight: 600 !important;
-    color: var(--accent) !important;
-    letter-spacing: 0.05em !important;
-    text-shadow: 0 0 20px rgba(79,142,247,0.4) !important;
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 20px var(--accent-dim);
 }
 
 header button {
-    background: rgba(255,255,255,0.07) !important;
-    color: var(--text-2) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius-sm) !important;
-    padding: 7px 14px !important;
-    font-family: var(--font) !important;
-    font-size: 0.78rem !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    transition: all var(--t) !important;
-    letter-spacing: 0.04em !important;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 14px;
+    font-family: var(--font);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t);
+    letter-spacing: 0.04em;
 }
 
 header button:hover {
-    background: rgba(255,255,255,0.12) !important;
-    color: var(--text) !important;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text);
 }
 
 /* ─── GRID STUDENTI ─────────────────────────────────────────── */
@@ -136,19 +140,19 @@ header button:hover {
 /* ─── STATI CARD ────────────────────────────────────────────── */
 .student-row.dinner-no {
     border-bottom-color: var(--dinner-no);
-    background: linear-gradient(135deg, var(--surface), rgba(52,152,219,0.06));
+    background: linear-gradient(135deg, var(--surface), var(--dinner-no-dim));
 }
 
 .student-row.assente {
     border-bottom-color: var(--absent);
-    background: linear-gradient(135deg, var(--surface), rgba(231,76,60,0.06));
+    background: linear-gradient(135deg, var(--surface), var(--absent-dim));
     opacity: 0.75;
 }
 
 .student-row.highlight-lab {
-    background: linear-gradient(135deg, var(--surface), var(--lab-dim)) !important;
-    border-bottom-color: var(--lab) !important;
-    border-color: rgba(243,156,18,0.25) !important;
+    border-bottom-color: var(--lab);
+    border-color: rgba(243, 156, 18, 0.25);
+    background: linear-gradient(135deg, var(--surface), var(--lab-dim));
 }
 
 /* ─── ELEMENTI CARD ─────────────────────────────────────────── */
@@ -236,19 +240,19 @@ header button:hover {
     color: var(--text);
 }
 
-/* Stati attivi */
+/* Stati attivi bottoni */
 .active-ass {
     background: var(--absent) !important;
-    color: white !important;
+    color: #ffffff !important;
     border-color: transparent !important;
-    box-shadow: 0 2px 10px rgba(231,76,60,0.35) !important;
+    box-shadow: 0 2px 10px var(--absent-dim) !important;
 }
 
 .active-din {
     background: var(--dinner-no) !important;
-    color: white !important;
+    color: #ffffff !important;
     border-color: transparent !important;
-    box-shadow: 0 2px 10px rgba(52,152,219,0.35) !important;
+    box-shadow: 0 2px 10px var(--dinner-no-dim) !important;
 }
 
 /* ─── BTN SWITCH TURNO ──────────────────────────────────────── */
@@ -271,8 +275,8 @@ header button:hover {
 .btn-switch.modificato {
     background: var(--switched) !important;
     border-color: transparent !important;
-    color: white;
-    box-shadow: 0 2px 10px rgba(56,217,169,0.35) !important;
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(13, 148, 136, 0.35) !important;
 }
 
 /* ─── TURNI ROW ─────────────────────────────────────────────── */
@@ -286,15 +290,15 @@ header button:hover {
 
 /* ─── CONNECTION STATUS ─────────────────────────────────────── */
 #connection-status {
-    font-size: 0.68rem !important;
-    padding: 5px 12px !important;
-    border-radius: 20px !important;
-    font-family: var(--font) !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.03em !important;
-    background: var(--ok-dim) !important;
-    color: var(--ok) !important;
-    border: 1px solid rgba(46,204,113,0.25) !important;
+    font-size: 0.68rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: var(--font);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    background: var(--ok-dim);
+    color: var(--ok);
+    border: 1px solid rgba(46, 204, 113, 0.25);
 }
 
 /* ─── PP INDICATOR ──────────────────────────────────────────── */
