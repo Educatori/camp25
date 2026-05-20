@@ -5,10 +5,10 @@
 
 import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { firebaseConfig } from "./firebase-config.js";
 
-// ── Inizializza (usa la stessa app se già avviata) ────────────
+// ── Inizializza ────────────
 let app;
 try {
     app = initializeApp(firebaseConfig);
@@ -71,8 +71,6 @@ export async function getStudenti() {
     }
     
     const studentiData = snap.val();
-    
-    // Se è un array (come nel tuo caso)
     let studentiList = [];
     
     if (Array.isArray(studentiData)) {
@@ -83,11 +81,10 @@ export async function getStudenti() {
             nomeCompleto: `${s.nome || ""} ${s.cognome || ""}`.trim(),
             stanza: s.room || s.stanza || "",
             classe: s.classe || "",
-            busMattina8: s.busMattina8 === true || s.bus8 === true,
+            busMattina8: s.busMattina8 === true,
             note: s.note || ""
         }));
     } else {
-        // Se è un oggetto (formato alternativo)
         for (let id in studentiData) {
             const s = studentiData[id];
             studentiList.push({
@@ -97,7 +94,7 @@ export async function getStudenti() {
                 nomeCompleto: `${s.nome || ""} ${s.cognome || ""}`.trim(),
                 stanza: s.room || s.stanza || "",
                 classe: s.classe || "",
-                busMattina8: s.busMattina8 === true || s.bus8 === true,
+                busMattina8: s.busMattina8 === true,
                 note: s.note || ""
             });
         }
@@ -108,21 +105,39 @@ export async function getStudenti() {
     return studentiList;
 }
 
-// ── Helper: filtra convittori (room 101-221, esclude "-") ─────
-export function getConvittori(tuttiStudenti) {
+// ── Helper: verifica se uno studente è convittore (ha stanza valida) ──
+export function isConvittore(studente) {
+    const stanza = studente.stanza;
+    if (!stanza || stanza === "-") return false;
+    const n = parseInt(stanza, 10);
+    return !isNaN(n) && n >= 101 && n <= 221;
+}
+
+// ── Helper: classi che usano il bus 8:00 ─────────────────────
+const CLASSI_BUS8 = ["1A", "1B", "3A", "3B", "3C", "4A", "4B", "5A"];
+
+export function isClasseBus8(classe) {
+    return CLASSI_BUS8.includes(classe);
+}
+
+// ── Helper: filtra studenti bus 8:00 (in base a classe + convittore) ──
+export function getStudentiBus8(tuttiStudenti) {
     if (!tuttiStudenti) return [];
+    
     return tuttiStudenti.filter(s => {
-        const stanza = s.stanza;
-        if (!stanza || stanza === "-") return false;
-        const n = parseInt(stanza, 10);
-        return !isNaN(n) && n >= 101 && n <= 221;
+        // Deve essere convittore (avere stanza valida)
+        const èConvittore = isConvittore(s);
+        // Deve essere in una delle classi che usano il bus
+        const èClasseBus8 = isClasseBus8(s.classe);
+        
+        return èConvittore && èClasseBus8;
     });
 }
 
-// ── Helper: filtra studenti bus 8:00 ─────────────────────────
-export function getStudentiBus8(tuttiStudenti) {
+// ── Helper: filtra convittori (tutti quelli con stanza 101-221) ──
+export function getConvittori(tuttiStudenti) {
     if (!tuttiStudenti) return [];
-    return tuttiStudenti.filter(s => s.busMattina8 === true);
+    return tuttiStudenti.filter(s => isConvittore(s));
 }
 
 // ── Helper: invalida cache ───────────────────────────────────
@@ -131,13 +146,22 @@ export function invalidateCache() {
     console.log("Cache invalidata");
 }
 
-// ── Helper: aggiorna campo busMattina8 per uno studente ──────
-export async function setBusMattina8(studentId, value) {
-    const studentRef = ref(db, `studenti/${studentId}`);
-    await update(studentRef, { busMattina8: value });
-    invalidateCache();
-    console.log(`Studente ${studentId} busMattina8 = ${value}`);
+// ── Helper: ottieni statistiche (utile per debug) ────────────
+export function getStatistiche(tuttiStudenti) {
+    if (!tuttiStudenti) return { totale: 0, convittori: 0, bus8: 0, perClasse: {} };
+    
+    const convittori = getConvittori(tuttiStudenti);
+    const bus8 = getStudentiBus8(tuttiStudenti);
+    
+    const perClasse = {};
+    CLASSI_BUS8.forEach(classe => {
+        perClasse[classe] = convittori.filter(s => s.classe === classe).length;
+    });
+    
+    return {
+        totale: tuttiStudenti.length,
+        convittori: convittori.length,
+        bus8: bus8.length,
+        perClasse: perClasse
+    };
 }
-
-// Nota: devi importare update da firebase-database
-import { update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
