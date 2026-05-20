@@ -2,10 +2,9 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfer for Lunch</title>
-    <link rel="stylesheet" href="css/campus-theme.css">
-    <link rel="stylesheet" href="css/transfer-style.css">
+    <title>BUS ore 16 — Schema Settimanale Pomeriggio</title>
+    <link rel="stylesheet" href="css/convitto-theme.css">
+    <link rel="stylesheet" href="css/bus-style.css">
 </head>
 <body>
 
@@ -14,92 +13,159 @@
     <button class="btn" id="logoutBtn">LOGOUT</button>
 </div>
 
-<div class="header-container">
+<div class="header-main">
     <img src="assets/Logo.png" alt="Logo" class="print-logo">
-    <h1><a href="index.html">Transfer for Lunch</a></h1>
+    <h1>
+        <a href="index.html">Settimanale Pomeriggio — ore 16</a>
+    </h1>
 </div>
 
-<div class="grid-container" id="mainGrid"></div>
+<div class="grid-wrapper" id="mainWrapper">
+    <div class="macro-column">
+        <div class="column-header">
+            <div class="cell-class">Classe</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-check">LU</div>
+            <div class="cell-check">MA</div>
+            <div class="cell-check">ME</div>
+            <div class="cell-check">GI</div>
+        </div>
+        <div id="col0"></div>
+    </div>
+    <div class="macro-column">
+        <div class="column-header">
+            <div class="cell-class">Classe</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-check">LU</div>
+            <div class="cell-check">MA</div>
+            <div class="cell-check">ME</div>
+            <div class="cell-check">GI</div>
+        </div>
+        <div id="col1"></div>
+    </div>
+    <div class="macro-column">
+        <div class="column-header">
+            <div class="cell-class">Classe</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-check">LU</div>
+            <div class="cell-check">MA</div>
+            <div class="cell-check">ME</div>
+            <div class="cell-check">GI</div>
+        </div>
+        <div id="col2"></div>
+    </div>
+</div>
 
 <script type="module">
-    // 1. Importiamo le funzioni centralizzate di Firebase da auth.js
-    import { initAuth, getStudenti, logout } from "./js/auth.js";
+    import { initAuth, getStudenti, getConvittori, logout } from "./js/auth.js";
     
-    // Se nel file auth.js hai una funzione specifica per filtrare chi va a pranzo, importala qui.
-    // Altrimenti puoi filtrarli direttamente in questa pagina (vedi sotto).
-    // Esempio: import { getStudentiPranzo } from "./js/auth.js";
-
-    // 2. Proteggiamo la pagina e controlliamo l'autenticazione
+    // Proteggi la pagina
     const user = await initAuth(true, "login.html");
     
     if (user) {
-        try {
-            // Recuperiamo tutti gli studenti in tempo reale da Firebase
-            const tuttiIStudenti = await getStudenti();
-            
-            // 3. Logica di filtraggio per il pranzo
-            // NOTA: Se nel vecchio 'transfer-script.js' avevi una logica particolare (es. controllare permessi 
-            // o un campo specifico come s.pranzo === true), applicala qui dentro.
-            const studentiPranzo = tuttiIStudenti.filter(s => {
-                // Modifica questa condizione in base a come sono salvati i dati dei trasferimenti nel tuo database
-                return s.transferPranzo === true || s.pranzo === true; 
-            });
-            
-            // 4. Ordinamento (es. per stanza, come l'altra pagina)
-            studentiPranzo.sort((a, b) => {
-                const stanzaA = parseInt(a.stanza) || 999;
-                const stanzaB = parseInt(b.stanza) || 999;
-                return stanzaA - stanzaB;
-            });
-            
-            // 5. Rendering della griglia
-            renderGrigliaPranzo(studentiPranzo);
-
-        } catch (error) {
-            console.error("Errore durante il recupero dei dati:", error);
-            document.getElementById("mainGrid").innerHTML = '<div class="error-message">Errore nel caricamento dei dati.</div>';
-        }
+        const tutti = await getStudenti();
+        // Filtra convittori (room valida 101-221)
+        let validi = getConvittori(tutti);
+        
+        // Esclude 2A, 2B e classi con "P"
+        validi = validi.filter(s => {
+            const classe = s.classe.toUpperCase();
+            const escluse = ["2A", "2B"];
+            return !escluse.includes(classe) && !classe.includes("P") && s.cognome;
+        });
+        
+        // Ordinamento: classe -> gruppo -> cognome
+        validi.sort((a, b) => {
+            const compClasse = (a.classe || '').localeCompare(b.classe || '', undefined, { numeric: true });
+            if (compClasse !== 0) return compClasse;
+            const gA = a.gruppo || "";
+            const gB = b.gruppo || "";
+            const compGruppo = gA.localeCompare(gB);
+            if (compGruppo !== 0) return compGruppo;
+            return (a.cognome || '').localeCompare(b.cognome || '');
+        });
+        
+        // Costruisci lista con separatori tra classi diverse
+        const elementiFinali = [];
+        let ultimaClasse = null;
+        
+        validi.forEach((studente) => {
+            if (ultimaClasse !== null && studente.classe !== ultimaClasse) {
+                elementiFinali.push({ type: 'separator' });
+            }
+            elementiFinali.push({ type: 'student', data: studente });
+            ultimaClasse = studente.classe;
+        });
+        
+        // Distribuzione in 3 colonne
+        const totaleElementi = elementiFinali.length;
+        const itemsPerColonna = Math.ceil(totaleElementi / 3);
+        
+        const colonne = [[], [], []];
+        elementiFinali.forEach((elemento, idx) => {
+            const colonnaIdx = Math.floor(idx / itemsPerColonna);
+            colonne[colonnaIdx].push(elemento);
+        });
+        
+        renderColonna(0, colonne[0]);
+        renderColonna(1, colonne[1]);
+        renderColonna(2, colonne[2]);
     }
     
-    function renderGrigliaPranzo(studenti) {
-        const container = document.getElementById("mainGrid");
+    function renderColonna(indice, elementi) {
+        const container = document.getElementById(`col${indice}`);
         if (!container) return;
         
-        if (!studenti || studenti.length === 0) {
-            container.innerHTML = '<div class="loading-message">— nessun passeggero per il pranzo —</div>';
+        if (!elementi || elementi.length === 0) {
+            container.innerHTML = '<div class="loading-message">— nessun passeggero —</div>';
             return;
         }
         
         let html = '';
-        for (let s of studenti) {
-            // Costruisci le righe o le card usando le classi presenti in 'transfer-style.css'
-            // Nota: Ho mantenuto la struttura standard, adattala se il vecchio script usava tag diversi
-            html += `
-                <div class="student-row">
-                    <div class="cell-room">${escapeHtml(s.stanza || '—')}</div>
-                    <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
-                    <div class="cell-class">${escapeHtml(s.classe || '—')}</div>
-                    <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
-                    <div class="cell-notes"><div class="line-notes"></div></div>
-                </div>
-            `;
+        for (let el of elementi) {
+            if (el.type === 'separator') {
+                html += `<div class="class-separator"></div>`;
+            } else {
+                const s = el.data;
+                const infoClasse = `${s.classe || '—'} ${s.percorso || ''} ${s.gruppo ? '• ' + s.gruppo : ''}`.trim();
+                
+                let bgClass = "";
+                if (s.classe === "5A") {
+                    if (s.gruppo === "G1") bgClass = "bg-5a-g1";
+                    if (s.gruppo === "G2") bgClass = "bg-5a-g2";
+                } else if (s.classe === "5B") {
+                    if (s.gruppo === "G1") bgClass = "bg-5b-g1";
+                    if (s.gruppo === "G2") bgClass = "bg-5b-g2";
+                }
+                
+                html += `
+                    <div class="student-row ${bgClass}">
+                        <div class="cell-class">${escapeHtml(infoClasse)}</div>
+                        <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                    </div>
+                `;
+            }
         }
         container.innerHTML = html;
         
-        // Gestione degli eventi click per depennare o spuntare le presenze
+        // Aggiungi event listener
         container.querySelectorAll('.student-row').forEach(row => {
             const nameCell = row.querySelector('.cell-name');
-            const checkBox = row.querySelector('.check-box');
+            const checkBoxes = row.querySelectorAll('.check-box');
             
             if (nameCell) {
                 nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
             }
-            if (checkBox) {
+            checkBoxes.forEach(checkBox => {
                 checkBox.addEventListener('click', (e) => {
                     e.stopPropagation();
                     checkBox.classList.toggle('checked');
                 });
-            }
+            });
         });
     }
     
@@ -113,7 +179,6 @@
         });
     }
     
-    // Gestione del tasto Logout
     document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
 </script>
 </body>
