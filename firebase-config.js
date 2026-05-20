@@ -1,5 +1,5 @@
 /* FIREBASE-CONFIG.JS di anagrafica25 */
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyA2CZmgpuWsaLXiKoSQmnigf67MJI44Rus",
   authDomain: "anagrafica25.firebaseapp.com",
   databaseURL: "https://anagrafica25-default-rtdb.europe-west1.firebasedatabase.app",
