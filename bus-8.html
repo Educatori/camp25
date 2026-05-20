@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="css/campus-theme.css">
     <link rel="stylesheet" href="css/bus-style.css">
     <style>
-        /* Stili di fallback */
         body { font-family: system-ui, sans-serif; margin: 20px; background: #f5f7fa; }
         .grid-wrapper { display: flex; gap: 20px; flex-wrap: wrap; }
         .macro-column { flex: 1; min-width: 280px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -26,6 +25,9 @@
         .print-logo { width: 45px; height: 45px; background: #c49a6c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; }
         .loading-message, .error-message { padding: 40px; text-align: center; color: #666; }
         .error-message { color: #dc2626; background: #fee2e2; }
+        .stats-bar { background: #e0f2fe; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 30px; flex-wrap: wrap; font-size: 0.9rem; }
+        .stats-bar strong { color: #0369a1; }
+        .info-message { padding: 20px; text-align: center; background: #fef3c7; color: #92400e; border-radius: 8px; margin: 20px; }
     </style>
 </head>
 <body>
@@ -36,9 +38,11 @@
 </div>
 
 <div class="header-main">
-    <div class="print-logo">C</div>
+    <div class="print-logo">🚌</div>
     <h1 style="margin:0; font-size:1.5rem;">BUS Mattino — ore 8:00</h1>
 </div>
+
+<div id="statsContainer" class="stats-bar" style="display: none;"></div>
 
 <div class="grid-wrapper" id="mainWrapper">
     <div class="macro-column">
@@ -49,7 +53,7 @@
             <div class="cell-check">✓</div>
             <div class="cell-notes">NOTE</div>
         </div>
-        <div id="col0" style="min-height: 200px;"></div>
+        <div id="col0"></div>
     </div>
     <div class="macro-column">
         <div class="column-header">
@@ -59,7 +63,7 @@
             <div class="cell-check">✓</div>
             <div class="cell-notes">NOTE</div>
         </div>
-        <div id="col1" style="min-height: 200px;"></div>
+        <div id="col1"></div>
     </div>
     <div class="macro-column">
         <div class="column-header">
@@ -69,68 +73,60 @@
             <div class="cell-check">✓</div>
             <div class="cell-notes">NOTE</div>
         </div>
-        <div id="col2" style="min-height: 200px;"></div>
+        <div id="col2"></div>
     </div>
 </div>
 
 <script type="module">
-    // Import dinamico con gestione errori
-    let auth, getStudenti, getStudentiBus8, logout, initAuth;
+    import { initAuth, getStudenti, getStudentiBus8, getStatistiche, logout, CLASSI_BUS8 } from "./js/auth.js";
     
+    // Attiva protezione login
     try {
-        const authModule = await import("./js/auth.js");
-        auth = authModule;
-        getStudenti = authModule.getStudenti;
-        getStudentiBus8 = authModule.getStudentiBus8;
-        logout = authModule.logout;
-        initAuth = authModule.initAuth;
-        console.log("✅ Modulo auth.js caricato correttamente");
-    } catch (error) {
-        console.error("❌ Errore nel caricamento di auth.js:", error);
-        document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore: Impossibile caricare il modulo di autenticazione. Verifica che il file js/auth.js esista.</div>`;
-        document.getElementById('col1').innerHTML = '';
-        document.getElementById('col2').innerHTML = '';
-    }
-    
-    // Se il modulo è stato caricato, procedi
-    if (auth && initAuth) {
-        try {
-            // Attiva protezione login
-            console.log("Inizializzazione autenticazione...");
-            const user = await initAuth(true, "login.html");
-            console.log("Utente autenticato:", user?.email || "nessuno");
-            
-            // Se siamo qui, l'utente è autenticato (o redirect è avvenuto)
-            if (user) {
-                await caricaLista();
-            }
-        } catch (error) {
-            console.error("❌ Errore autenticazione:", error);
-            document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore autenticazione: ${error.message}</div>`;
+        const user = await initAuth(true, "login.html");
+        console.log("Utente autenticato:", user?.email);
+        
+        if (user) {
+            await caricaLista();
         }
+    } catch (error) {
+        console.error("Errore autenticazione:", error);
+        document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore autenticazione: ${error.message}</div>`;
     }
     
     async function caricaLista() {
         try {
             console.log("Caricamento studenti...");
-            
-            if (!getStudenti) {
-                throw new Error("Funzione getStudenti non disponibile");
-            }
-            
             const tutti = await getStudenti();
             console.log(`Trovati ${tutti.length} studenti totali`);
             
-            if (!tutti || tutti.length === 0) {
-                document.getElementById('col0').innerHTML = '<div class="loading-message">⚠️ Nessuno studente trovato nel database. Verifica che il nodo "studenti" esista su Firebase.</div>';
-                return;
-            }
+            // Mostra statistiche
+            const stats = getStatistiche(tutti);
+            console.log("Statistiche:", stats);
             
-            const studentiBus8 = getStudentiBus8 ? getStudentiBus8(tutti) : tutti.filter(s => s.busMattina8 === true);
-            console.log(`Di cui ${studentiBus8.length} con bus 8:00`);
+            const statsContainer = document.getElementById('statsContainer');
+            statsContainer.style.display = 'flex';
+            statsContainer.innerHTML = `
+                <span>📊 <strong>Totale studenti:</strong> ${stats.totale}</span>
+                <span>🏠 <strong>Convittori (room 101-221):</strong> ${stats.convittori}</span>
+                <span>🚌 <strong>Bus 8:00:</strong> ${stats.bus8}</span>
+                <span>📚 <strong>Per classe:</strong> ${Object.entries(stats.perClasse).map(([c, n]) => `${c}:${n}`).join(' · ')}</span>
+            `;
+            
+            // Filtra studenti bus 8:00 (classe + convittore)
+            let studentiBus8 = getStudentiBus8(tutti);
+            console.log(`Studenti bus 8:00: ${studentiBus8.length}`);
             
             if (studentiBus8.length === 0) {
-                document.getElementById('col0').innerHTML = '<div class="loading-message">⚠️ Nessuno studente con busMattina8 = true. Aggiungi il campo busMattina8: true agli studenti nel database.</div>';
+                const infoHtml = `
+                    <div class="info-message">
+                        ⚠️ <strong>Nessuno studente trovato per il bus 8:00</strong><br><br>
+                        Criteri richiesti:<br>
+                        • Classe: ${CLASSI_BUS8.join(', ')}<br>
+                        • Convittore (room valida da 101 a 221, es. "218", non "-")<br><br>
+                        <small>Verifica che gli studenti abbiano una room valida e la classe corretta nel database.</small>
+                    </div>
+                `;
+                document.getElementById('col0').innerHTML = infoHtml;
                 return;
             }
             
@@ -139,6 +135,9 @@
                 const stanzaA = parseInt(a.stanza) || 999;
                 const stanzaB = parseInt(b.stanza) || 999;
                 if (stanzaA !== stanzaB) return stanzaA - stanzaB;
+                // Poi per classe
+                if (a.classe !== b.classe) return a.classe.localeCompare(b.classe);
+                // Infine per nome
                 return (a.nomeCompleto || '').localeCompare(b.nomeCompleto || '');
             });
             
@@ -152,7 +151,7 @@
             renderColonna(2, colonne[2]);
             
         } catch (error) {
-            console.error("❌ Errore caricamento lista:", error);
+            console.error("Errore caricamento lista:", error);
             document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore: ${error.message}</div>`;
         }
     }
@@ -171,8 +170,8 @@
             html += `
                 <div class="row-student">
                     <div class="cell-room">${escapeHtml(s.stanza || '—')}</div>
-                    <div class="cell-name">${escapeHtml(s.nomeCompleto || s.nome || '?')}</div>
-                    <div class="cell-class">${escapeHtml(s.classe || '—')}</div>
+                    <div class="cell-name">${escapeHtml(s.nomeCompleto)}</div>
+                    <div class="cell-class">${escapeHtml(s.classe)}</div>
                     <div class="cell-check"><input type="checkbox"></div>
                     <div class="cell-notes"><input type="text" placeholder="Note trasporto"></div>
                 </div>
@@ -193,11 +192,7 @@
     
     // Logout
     document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-        if (logout) {
-            await logout();
-        } else {
-            window.location.href = "login.html";
-        }
+        await logout();
     });
 </script>
 </body>
