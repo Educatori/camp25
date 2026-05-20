@@ -33,25 +33,48 @@
             // Prendiamo la lista completa di tutti gli studenti salvati su Firebase
             const tuttiIStudenti = await getStudenti();
             
-            // 3. Ordinamento globale per stanza
-            // I numeri di stanza reali vanno all'inizio, chi non ha la stanza (o non è un numero) va in fondo
-            tuttiIStudenti.sort((a, b) => {
-                const stanzaA = parseInt(a.stanza);
-                const stanzaB = parseInt(b.stanza);
-                
-                const haStanzaA = !isNaN(stanzaA);
-                const haStanzaB = !isNaN(stanzaB);
+            // 3. Filtriamo solo gli studenti che partecipano al Transfer for Lunch
+            // Controlla se il campo transferLunch (o pranzo/transfer) è attivo su Firebase
+            const studentiPranzo = tuttiIStudenti.filter(s => 
+                s.transferLunch === true || s.pranzo === true || s.transferPranzo === true
+            );
 
-                if (haStanzaA && haStanzaB) return stanzaA - stanzaB; // Entrambi hanno la stanza numerica
-                if (haStanzaA && !haStanzaB) return -1;               // A ha la stanza, B no (A va prima)
-                if (!haStanzaA && haStanzaB) return 1;                // B ha la stanza, A no (B va prima)
-                
-                // Se nessuno dei due ha la stanza, ordina alfabeticamente per cognome
-                return (a.cognome || '').localeCompare(b.cognome || '');
+            // 4. Raggruppiamo gli studenti per stanza/classe per popolare i box del CSS
+            const stanzeRaggruppate = {};
+            
+            studentiPranzo.forEach(s => {
+                const chiaveStanza = s.stanza || 'Senza Stanza';
+                if (!stanzeRaggruppate[chiaveStanza]) {
+                    stanzeRaggruppate[chiaveStanza] = {
+                        stanza: chiaveStanza,
+                        classe: s.classe || '—',
+                        isLab: s.isLab === true || s.laboratorio === true, // Gestione badge laboratorio rosso
+                        studenti: []
+                    };
+                }
+                stanzeRaggruppate[chiaveStanza].studenti.push(s);
+            });
+
+            // 5. Ordiniamo le stanze in modo numerico coerente
+            const stanzeOrdinate = Object.values(stanzeRaggruppate).sort((a, b) => {
+                const numA = parseInt(a.stanza);
+                const numB = parseInt(b.stanza);
+                const haNumA = !isNaN(numA);
+                const haNumB = !isNaN(numB);
+
+                if (haNumA && haNumB) return numA - numB;
+                if (haNumA && !haNumB) return -1;
+                if (!haNumA && haNumB) return 1;
+                return a.stanza.localeCompare(b.stanza);
+            });
+
+            // Inoltre ordiniamo gli studenti dentro ogni singola stanza alfabeticamente
+            stanzeOrdinate.forEach(blocco => {
+                blocco.studenti.sort((a, b) => (a.cognome || '').localeCompare(b.cognome || ''));
             });
             
-            // 4. Rendering completo nella griglia
-            renderGrigliaPranzo(tuttiIStudenti);
+            // 6. Rendering strutturato dentro la griglia originale
+            renderGrigliaPranzo(stanzeOrdinate);
 
         } catch (error) {
             console.error("Errore durante il recupero degli studenti:", error);
@@ -59,36 +82,54 @@
         }
     }
     
-    function renderGrigliaPranzo(studenti) {
+    function renderGrigliaPranzo(stanze) {
         const container = document.getElementById("mainGrid");
         if (!container) return;
         
-        if (!studenti || studenti.length === 0) {
-            container.innerHTML = '<div class="loading-message">— nessun passeggero trovato —</div>';
+        if (!stanze || stanze.length === 0) {
+            container.innerHTML = '<div class="loading-message">— nessun passeggero trovato per il pranzo —</div>';
             return;
         }
         
         let html = '';
-        for (let s of studenti) {
+        
+        // Genera i box strutturati richiesti dal file CSS originale
+        for (let blocco of stanze) {
+            const classeLab = blocco.isLab ? 'has-lab' : '';
+            const badgeLab = blocco.isLab ? '<span class="lab-badge">LAB</span>' : '';
+            
             html += `
-                <div class="student-row">
-                    <div class="cell-room">${escapeHtml(s.stanza || '—')}</div>
-                    <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
-                    <div class="cell-class">${escapeHtml(s.classe || '—')}</div>
-                    <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
-                    <div class="cell-notes"><div class="line-notes"></div></div>
+                <div class="room-box ${classeLab}">
+                    <div class="room-info">
+                        ${escapeHtml(blocco.stanza)}
+                        ${badgeLab}
+                        <span class="count-badge">${blocco.studenti.length}</span>
+                    </div>
+                    <div class="occupants-list">
+                        ${blocco.studenti.map(s => `
+                            <div class="row-student">
+                                <div class="student-name" style="cursor:pointer">
+                                    <b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}
+                                </div>
+                                <div class="student-details">${escapeHtml(s.classe || '')}</div>
+                                <div class="cell-check" style="width:24px; padding-left:4px;">
+                                    <div class="check-box" style="cursor:pointer"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             `;
         }
         container.innerHTML = html;
         
-        // Eventi di interazione (depennamento riga e checkbox presenza)
-        container.querySelectorAll('.student-row').forEach(row => {
-            const nameCell = row.querySelector('.cell-name');
+        // Rigenerazione eventi interattivi sulle righe interne dei box originali
+        container.querySelectorAll('.row-student').forEach(row => {
+            const nameTarget = row.querySelector('.student-name');
             const checkBox = row.querySelector('.check-box');
             
-            if (nameCell) {
-                nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
+            if (nameTarget) {
+                nameTarget.addEventListener('click', () => row.classList.toggle('row-crossed'));
             }
             if (checkBox) {
                 checkBox.addEventListener('click', (e) => {
