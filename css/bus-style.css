@@ -1,13 +1,14 @@
 /* ============================================================
    BUS-STYLE.CSS — Bus mattino (8) e pomeriggio (16)
+   Estensione dinamica coerente con CAMPUS-THEME.CSS
    ============================================================ */
 
 /* ─── BASE ──────────────────────────────────────────────────── */
 body {
-    font-family: var(--font, 'DM Sans', 'Segoe UI', sans-serif);
+    font-family: var(--font, sans-serif);
     margin: 0;
     padding: 10px;
-    font-size: 10px;
+    font-size: 11px;
     background: var(--bg);
     color: var(--text);
 }
@@ -15,14 +16,15 @@ body {
 /* ─── HEADER ────────────────────────────────────────────────── */
 .header-main {
     text-align: center;
-    border-bottom: 2px solid var(--border-2);
-    margin-bottom: 12px;
+    border-bottom: 3px solid var(--accent-dim);
+    margin-bottom: 15px;
     padding: 8px 0 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 20px;
     position: relative;
+    min-height: 56px;
 }
 
 .print-logo {
@@ -38,14 +40,19 @@ body {
 
 h1 {
     margin: 0;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    background: linear-gradient(90deg, var(--accent), var(--switched, var(--accent-2)));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+h1 a {
+    text-decoration: none;
+    color: inherit;
 }
 
 /* ─── GRIGLIA ───────────────────────────────────────────────── */
@@ -53,224 +60,241 @@ h1 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     column-gap: 16px;
+    row-gap: 10px;
 }
 
 /* ─── INTESTAZIONE COLONNA ──────────────────────────────────── */
 .column-header {
     display: flex;
-    background: var(--bg-2);
-    color: var(--text-2);
+    background: var(--surface-3, var(--bg-2));
+    color: var(--text);
     font-weight: 700;
-    padding: 5px 4px;
-    border-radius: 6px 6px 0 0;
-    font-size: 8px;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    font-size: 9px;
     margin-bottom: 2px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-2);
     border-bottom: none;
 }
 
 /* ─── RIGA STUDENTE ─────────────────────────────────────────── */
-.student-row {
+.row-student {
     display: flex;
     align-items: center;
-    padding: 3px 5px;
-    margin-bottom: 1px;
-    border: 0.5px solid var(--border);
-    border-radius: 2px;
-    background: transparent;
-    transition: background 0.15s;
+    padding: 4px 8px;
+    margin-bottom: 2px;
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    transition: all var(--t, 0.15s);
     page-break-inside: avoid;
+    box-shadow: var(--shadow-sm);
 }
 
-.student-row:nth-child(even) { background: var(--surface-2); }
-.student-row:hover { background: var(--accent-dim); }
+.row-student:nth-child(even) { 
+    background: var(--surface-2); 
+}
 
-/* ─── STATI E BADGE GRUPPO ──────────────────────────────────── */
-.row-crossed {
+.row-student:hover { 
+    border-color: var(--accent);
+    background: var(--accent-dim); 
+}
+
+/* Stati speciali e righe depennate */
+.row-student.row-crossed {
     text-decoration: line-through;
     opacity: 0.45;
     background: var(--absent-dim) !important;
+    border-color: var(--border) !important;
 }
 
+/* Badge o background di gruppo opzionali */
 .bg-5a-g1 { background: var(--accent-dim) !important; }
 .bg-5a-g2 { background: var(--accent-2-dim) !important; }
 .bg-5b-g1 { background: var(--lab-dim) !important; }
 .bg-5b-g2 { background: var(--absent-dim) !important; }
 
-/* ─── SEPARATORE CLASSI ─────────────────────────────────────── */
-.class-separator {
-    height: 3px;
-    background: var(--border-2);
-    margin: 2px 0;
-    border-radius: 2px;
-}
-
-/* ─── CELLE ─────────────────────────────────────────────────── */
+/* ─── CELLE INTERNE ─────────────────────────────────────────── */
 .cell-room {
-    width: 28px;
+    width: 32px;
     font-weight: 700;
     font-family: var(--font-mono, monospace);
-    font-size: 8.5px;
+    font-size: 10px;
     color: var(--accent);
-    border-right: 1px solid var(--border);
+    border-right: 1px solid var(--border-2);
     flex-shrink: 0;
 }
 
 .cell-name {
     flex-grow: 1;
-    padding-left: 5px;
+    padding-left: 8px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 9px;
+    font-size: 10.5px;
+    color: var(--text);
 }
 
-.cell-name b { color: var(--text); }
+.cell-name b { 
+    color: var(--text); 
+    text-transform: uppercase;
+}
 
 .cell-class {
-    width: 48px;
+    width: 52px;
     text-align: center;
-    font-size: 8px;
-    color: var(--text-muted);
+    font-size: 9px;
+    color: var(--text-2, var(--text-muted));
+    font-weight: 600;
     flex-shrink: 0;
 }
 
 .cell-check {
-    width: 38px;
-    text-align: center;
+    width: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     flex-shrink: 0;
 }
 
 .cell-notes {
-    width: 58px;
-    text-align: center;
+    width: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     flex-shrink: 0;
 }
 
-/* ─── CHECKBOX ──────────────────────────────────────────────── */
-.check-box {
-    width: 12px;
-    height: 12px;
-    border: 1.5px solid var(--border-2);
-    border-radius: 2px;
-    margin: 0 auto;
-    background: var(--surface-2);
-    cursor: pointer;
-    transition: all 0.15s;
-    position: relative;
+/* Input di testo delle note dentro la cella */
+.cell-notes input.note-input {
+    width: 100%;
+    padding: 3px 6px;
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-sm);
+    font-size: 9px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    transition: border-color var(--t);
 }
 
-.check-box:hover { border-color: var(--ok); }
-
-.check-box.checked {
-    background: var(--ok-dim);
-    border-color: var(--ok);
+.cell-notes input.note-input:focus {
+    border-color: var(--accent);
+    outline: none;
 }
 
-.check-box.checked::after {
-    content: '✔';
-    position: absolute;
-    inset: 0;
+/* ─── BOTTONI TOOLBAR INTERFACCIA ──────────────────────────── */
+.no-print { 
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-size: 8px;
-    color: var(--ok);
-    line-height: 1;
+    gap: 10px;
+    margin: 12px 0; 
 }
-
-/* ─── LINEA NOTE ────────────────────────────────────────────── */
-.line-notes {
-    width: 88%;
-    border-bottom: 0.5px solid var(--border-2);
-    height: 10px;
-    margin: 0 auto;
-}
-
-/* ─── PULSANTE STAMPA ───────────────────────────────────────── */
-.no-print { text-align: center; margin-bottom: 12px; }
 
 .btn {
-    padding: 9px 28px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    padding: 8px 24px;
+    background: linear-gradient(90deg, var(--accent), var(--switched, var(--accent-2)));
     color: var(--text-inv);
     border: none;
     cursor: pointer;
-    border-radius: 30px;
+    border-radius: var(--radius-xl);
     font-weight: 700;
     font-family: var(--font, sans-serif);
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 0.05em;
-    transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+    text-transform: uppercase;
+    transition: all var(--t, 0.2s);
+    box-shadow: var(--shadow-sm);
 }
 
 .btn:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.15);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    box-shadow: var(--shadow);
 }
 
-/* ─── MEDIA QUERY STAMPA DEDICATA ───────────────────────────── */
+/* ─── MEDIA QUERY STAMPA DEDICATA (Orizzontale / Sempre Chiara) ── */
 @media print {
-    .no-print { display: none !important; }
-
-    body {
-        background: white !important;
-        color: black !important;
-        padding: 0;
-        font-size: 9px;
+    * { 
+        -webkit-print-color-adjust: exact !important; 
+        print-color-adjust: exact !important; 
     }
 
-    .print-logo { display: block !important; }
+    .no-print { 
+        display: none !important; 
+    }
+
+    body {
+        background: var(--print-bg, #ffffff) !important;
+        color: var(--print-text, #000000) !important;
+        padding: 0;
+        font-size: 8.5px;
+    }
+
+    .print-logo { 
+        display: block !important; 
+    }
 
     .header-main {
-        border-bottom: 2px solid var(--text) !important;
+        border-bottom: 2px solid var(--print-header, #1a2236) !important;
+        margin-bottom: 10px;
+        padding-bottom: 4px;
     }
 
     h1 {
         background: none !important;
-        -webkit-text-fill-color: var(--text) !important;
-        color: var(--text) !important;
+        -webkit-text-fill-color: var(--print-header, #1a2236) !important;
+        color: var(--print-header, #1a2236) !important;
+        font-size: 13px;
     }
 
     .column-header {
-        background: var(--bg-3) !important;
-        color: var(--text) !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        background: #e2e8f0 !important;
+        color: var(--print-header, #1a2236) !important;
+        border: 0.5px solid #a0aec0 !important;
     }
 
-    .student-row {
-        border-color: var(--border) !important;
-        background: transparent !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+    .row-student {
+        border: 0.5px solid #a0aec0 !important;
+        background: var(--print-bg, #ffffff) !important;
+        box-shadow: none !important;
+        padding: 3px 6px;
+        margin-bottom: 0px;
     }
 
-    .student-row:nth-child(even) { background: var(--surface-2) !important; }
+    .row-student:nth-child(even) { 
+        background: #f8fafc !important; 
+    }
+
+    .row-student.row-crossed {
+        opacity: 0.4;
+        background: #f1f5f9 !important;
+    }
+
+    .cell-room { 
+        color: var(--print-header, #1a2236) !important; 
+        border-right: 0.5px solid #a0aec0 !important;
+    }
     
-    /* Mantenimento semantico dei badge di classe/gruppo in stampa tramite var */
-    .bg-5a-g1 { background: var(--accent-dim) !important; }
-    .bg-5a-g2 { background: var(--accent-2-dim) !important; }
-    .bg-5b-g1 { background: var(--lab-dim) !important; }
-    .bg-5b-g2 { background: var(--absent-dim) !important; }
-
-    .check-box {
-        border-color: var(--text) !important;
-        background: transparent !important;
+    .cell-name, .cell-name b { 
+        color: var(--print-text, #000000) !important; 
+    }
+    
+    .cell-class { 
+        color: #475569 !important; 
     }
 
-    .check-box.checked::after { color: var(--ok) !important; }
+    .cell-notes input.note-input {
+        border: none !important;
+        background: transparent !important;
+        padding: 0;
+        font-size: 8px;
+    }
 
-    .line-notes { border-bottom-color: var(--border-2) !important; }
-
-    .cell-room { color: var(--text) !important; }
-    .cell-name b { color: var(--text) !important; }
-
-    .class-separator { background: var(--border-2) !important; }
-
-    @page { size: A4 landscape; margin: 0.8cm; }
+    @page { 
+        size: A4 landscape; 
+        margin: 0.5cm; 
+    }
 }
