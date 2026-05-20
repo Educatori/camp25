@@ -26,26 +26,33 @@ try {
 export const auth = getAuth(app);
 export const db = getDatabase(app);
 
-// ── Nasconde il body finché non c'è conferma auth ────────────
-document.body.style.visibility = "hidden";
+// ── Nasconde il body finché non c'è conferma auth (solo se non è login) ────────────
+// Evita di nascondere la pagina di login
+if (!window.location.pathname.includes("login.html")) {
+    document.body.style.visibility = "hidden";
+}
 
 // ── Controlla autenticazione ─────────────────────────────────
 export function initAuth(redirectOnUnauth = true, redirectUrl = "login.html") {
     return new Promise((resolve) => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.body.style.visibility = "visible";
+                if (!window.location.pathname.includes("login.html")) {
+                    document.body.style.visibility = "visible";
+                }
                 window._currentUser = user;
                 
                 // Dispatch evento custom
                 document.dispatchEvent(new CustomEvent("authReady", { detail: { user } }));
                 resolve(user);
             } else {
-                if (redirectOnUnauth) {
+                if (redirectOnUnauth && !window.location.pathname.includes("login.html")) {
                     const current = encodeURIComponent(window.location.pathname.split("/").pop() || "index.html");
                     window.location.href = `${redirectUrl}?redirect=${current}`;
                 } else {
-                    document.body.style.visibility = "visible";
+                    if (!window.location.pathname.includes("login.html")) {
+                        document.body.style.visibility = "visible";
+                    }
                     resolve(null);
                 }
             }
@@ -75,32 +82,45 @@ let _cachedStudenti = null;
 
 export async function getStudenti() {
     if (_cachedStudenti) return _cachedStudenti;
+    
+    console.log("Caricamento studenti da Firebase...");
     const snap = await get(ref(db, "studenti"));
-    if (!snap.exists()) throw new Error("Nessuno studente trovato nel database");
+    
+    if (!snap.exists()) {
+        console.warn("Nessuno studente trovato nel database");
+        return [];
+    }
     
     const studentiData = snap.val();
     const studentiList = [];
     
     for (let id in studentiData) {
         const s = studentiData[id];
+        // Normalizza i campi supportando sia italiano che inglese
+        const nome = s.nome || s.firstName || "";
+        const cognome = s.cognome || s.lastName || "";
+        const nomeCompleto = `${nome} ${cognome}`.trim();
+        
         studentiList.push({
             id: id,
-            nome: s.nome || "",
-            cognome: s.cognome || "",
-            nomeCompleto: `${s.nome || ""} ${s.cognome || ""}`.trim(),
-            stanza: s.room || s.stanza || "",
-            classe: s.classe || s.className || "",
-            busMattina8: s.busMattina8 === true || s.bus8 === true,
+            nome: nome,
+            cognome: cognome,
+            nomeCompleto: nomeCompleto || s.name || s.fullName || "Sconosciuto",
+            stanza: s.room || s.stanza || s.numeroStanza || "",
+            classe: s.classe || s.className || s.grade || "",
+            busMattina8: s.busMattina8 === true || s.bus8 === true || s.busOre8 === true,
             note: s.note || ""
         });
     }
     
+    console.log(`Caricati ${studentiList.length} studenti`);
     _cachedStudenti = studentiList;
     return studentiList;
 }
 
 // ── Helper: filtra convittori (room 101-221) ──────────────────
 export function getConvittori(tuttiStudenti) {
+    if (!tuttiStudenti) return [];
     return tuttiStudenti.filter(s => {
         const n = parseInt(s.stanza, 10);
         return !isNaN(n) && n >= 101 && n <= 221;
@@ -109,6 +129,7 @@ export function getConvittori(tuttiStudenti) {
 
 // ── Helper: filtra studenti bus 8:00 ─────────────────────────
 export function getStudentiBus8(tuttiStudenti) {
+    if (!tuttiStudenti) return [];
     return tuttiStudenti.filter(s => s.busMattina8 === true);
 }
 
@@ -116,8 +137,9 @@ export function getStudentiBus8(tuttiStudenti) {
 export function invalidateCache() {
     _cachedData = null;
     _cachedStudenti = null;
+    console.log("Cache invalidata");
 }
 
-// ── Avvia automaticamente (opzionale) ────────────────────────
+// ── Avvia automaticamente per le pagine che non chiamano initAuth ────────
 // Se vuoi che la protezione sia automatica, decommenta:
 // initAuth(true, "login.html");
