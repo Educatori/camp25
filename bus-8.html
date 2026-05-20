@@ -1,135 +1,133 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>BUS ore 8 — Trasporto Mattino</title>
-    <link rel="stylesheet" href="css/campus-theme.css">
+<!DOCTYPE html><html lang="it"><head>    
+    <meta charset="UTF-8">    
+    <title>BUS ore 8 — Trasporto Mattino</title>    
+    <link rel="stylesheet" href="css/campus-theme.css">    
     <link rel="stylesheet" href="css/bus-style.css">
-</head>
-<body>
+</head><body>
 
-<div class="no-print">
+<div class="no-print">    
     <button class="btn" onclick="window.print()">STAMPA</button>
     <button class="btn" id="logoutBtn">LOGOUT</button>
 </div>
 
-<div class="header-main">
-    <img src="assets/Logo.png" alt="Logo" class="print-logo">
-    <h1>
-        <a href="index.html">Bus Mattino — ore 8</a>
+<div class="header-main">    
+    <img src="assets/Logo.png" alt="Logo" class="print-logo">    
+    <h1>        
+        <a href="index.html">Bus Mattino — ore 8</a>    
     </h1>
 </div>
 
-<div class="grid-wrapper" id="mainWrapper">
-    <div class="macro-column">
-        <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
-        </div>
-        <div id="col0"></div>
-    </div>
-    <div class="macro-column">
-        <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
-        </div>
-        <div id="col1"></div>
-    </div>
-    <div class="macro-column">
-        <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
-        </div>
-        <div id="col2"></div>
+<div class="grid-wrapper" id="mainWrapper">    
+    <div class="macro-column">        
+        <div class="column-header">            
+            <div class="cell-room">Room</div>            
+            <div class="cell-name">Nome</div>            
+            <div class="cell-class">Classe</div>            
+            <div class="cell-check">Presenza</div>            
+            <div class="cell-notes">Note</div>        
+        </div>        
+        <div id="col0"></div>    
+    </div>    
+    <div class="macro-column">        
+        <div class="column-header">            
+            <div class="cell-room">Room</div>            
+            <div class="cell-name">Nome</div>            
+            <div class="cell-class">Classe</div>            
+            <div class="cell-check">Presenza</div>            
+            <div class="cell-notes">Note</div>        
+        </div>        
+        <div id="col1"></div>    
+    </div>    
+    <div class="macro-column">        
+        <div class="column-header">            
+            <div class="cell-room">Room</div>            
+            <div class="cell-name">Nome</div>            
+            <div class="cell-class">Classe</div>            
+            <div class="cell-check">Presenza</div>            
+            <div class="cell-notes">Note</div>        
+        </div>        
+        <div id="col2"></div>    
     </div>
 </div>
 
-<script type="module">
-    import { initAuth, getStudenti, getStudentiBus8, logout } from "./js/auth.js";
+<script type="module">    
+    import { initAuth, getStudenti, getStudentiBus8, logout } from "./js/auth.js";        
     
-    // Proteggi la pagina
-    const user = await initAuth(true, "login.html");
+    // Proteggi la pagina e controlla l'accesso
+    const user = await initAuth(true, "login.html");        
     
-    if (user) {
-        const tutti = await getStudenti();
-        const studentiBus8 = getStudentiBus8(tutti);
+    if (user) {        
+        const tutti = await getStudenti();        
+        const studentiBus8 = getStudentiBus8(tutti);                
         
-        // Ordina per stanza
-        studentiBus8.sort((a, b) => {
-            const stanzaA = parseInt(a.stanza) || 999;
-            const stanzaB = parseInt(b.stanza) || 999;
-            return stanzaA - stanzaB;
-        });
+        // Ordina gli studenti in base al numero di stanza
+        studentiBus8.sort((a, b) => {            
+            const stanzaA = parseInt(a.stanza) || 999;            
+            const stanzaB = parseInt(b.stanza) || 999;            
+            return stanzaA - stanzaB;        
+        });                
         
-        // Distribuisci su 3 colonne
-        const colonne = [[], [], []];
-        studentiBus8.forEach((s, i) => colonne[i % 3].push(s));
+        // Distribuisci in modo bilanciato sulle 3 colonne originali
+        const colonne = [[], [], []];        
+        studentiBus8.forEach((s, i) => colonne[i % 3].push(s));                
         
-        renderColonna(0, colonne[0]);
-        renderColonna(1, colonne[1]);
-        renderColonna(2, colonne[2]);
-    }
+        renderColonna(0, colonne[0]);        
+        renderColonna(1, colonne[1]);        
+        renderColonna(2, colonne[2]);    
+    }        
     
-    function renderColonna(indice, studenti) {
-        const container = document.getElementById(`col${indice}`);
-        if (!container) return;
+    function renderColonna(indice, studenti) {        
+        const container = document.getElementById(`col${indice}`);        
+        if (!container) return;                
         
-        if (!studenti || studenti.length === 0) {
-            container.innerHTML = '<div class="loading-message">— nessun passeggero —</div>';
-            return;
-        }
+        if (!studenti || studenti.length === 0) {            
+            container.innerHTML = '<div class="loading-message">— nessun passeggero —</div>';            
+            return;        
+        }                
         
-        let html = '';
-        for (let s of studenti) {
-            html += `
-                <div class="student-row">
-                    <div class="cell-room">${escapeHtml(s.stanza || '—')}</div>
-                    <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
-                    <div class="cell-class">${escapeHtml(s.classe || '—')}</div>
-                    <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
-                    <div class="cell-notes"><div class="line-notes"></div></div>
-                </div>
-            `;
-        }
-        container.innerHTML = html;
+        let html = '';        
+        for (let s of studenti) {            
+            html += `                
+                <div class="student-row">                    
+                    <div class="cell-room">${escapeHtml(s.stanza || '—')}</div>                    
+                    <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>                    
+                    <div class="cell-class">${escapeHtml(s.classe || '—')}</div>                    
+                    <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>                    
+                    <div class="cell-notes"><div class="line-notes"></div></div>                
+                </div>            
+            `;        
+        }        
+        container.innerHTML = html;                
         
-        // Aggiungi event listener dopo aver inserito nell'HTML
-        container.querySelectorAll('.student-row').forEach(row => {
-            const nameCell = row.querySelector('.cell-name');
-            const checkBox = row.querySelector('.check-box');
+        // Gestione degli eventi di interazione (click sul nome e sulla checkbox)
+        container.querySelectorAll('.student-row').forEach(row => {            
+            const nameCell = row.querySelector('.cell-name');            
+            const checkBox = row.querySelector('.check-box');                        
             
-            if (nameCell) {
-                nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
-            }
-            if (checkBox) {
-                checkBox.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    checkBox.classList.toggle('checked');
-                });
-            }
-        });
-    }
+            if (nameCell) {                
+                nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));            
+            }            
+            if (checkBox) {                
+                checkBox.addEventListener('click', (e) => {                    
+                    e.stopPropagation(); // Evita di attivare anche il click sulla riga                    
+                    checkBox.classList.toggle('checked');                
+                });            
+            }        
+        });    
+    }        
     
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/[&<>]/g, (m) => {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
+    // Sicurezza contro inserimenti di testo dannoso (XSS)
+    function escapeHtml(str) {        
+        if (!str) return '';        
+        return String(str).replace(/[&<>]/g, (m) => {            
+            if (m === '&') return '&amp;';            
+            if (m === '<') return '&lt;';            
+            if (m === '>') return '&gt;';            
+            return m;        
+        });    
+    }        
     
+    // Gestione del pulsante di logout
     document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
 </script>
-</body>
-</html>
+</body></html>
