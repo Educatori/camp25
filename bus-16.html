@@ -12,7 +12,7 @@
 <body>
 
 <div class="no-print">
-    <button class="btn" onclick="window.print()">STAMPA</button>
+    <button class="btn" onclick="window.print()">STAMPA ELENCO</button>
     <button class="btn" id="refreshDataBtn" style="margin-left: 10px;">⟳ AGGIORNA DATI</button>
 </div>
 
@@ -29,8 +29,6 @@
             <div class="cell-room">Room</div>
             <div class="cell-name">Nome</div>
             <div class="cell-class">Classe</div>
-            <div class="cell-check">Pres.</div>
-            <div class="cell-notes">Note</div>
         </div>
         <div id="col0"></div>
     </div>
@@ -39,8 +37,6 @@
             <div class="cell-room">Room</div>
             <div class="cell-name">Nome</div>
             <div class="cell-class">Classe</div>
-            <div class="cell-check">Pres.</div>
-            <div class="cell-notes">Note</div>
         </div>
         <div id="col1"></div>
     </div>
@@ -49,8 +45,6 @@
             <div class="cell-room">Room</div>
             <div class="cell-name">Nome</div>
             <div class="cell-class">Classe</div>
-            <div class="cell-check">Pres.</div>
-            <div class="cell-notes">Note</div>
         </div>
         <div id="col2"></div>
     </div>
@@ -73,7 +67,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Funzione principale: carica studenti e filtra per bus delle ore 16:00
+    // Carica gli studenti associati al bus pomeridiano (ore 16)
     async function caricaStudentiBus16() {
         mostraMessaggioCaricamento();
 
@@ -82,7 +76,7 @@
             const studentiData = snapshot.val();
 
             if (!studentiData) {
-                throw new Error("Nessun dato trovato nel nodo 'studenti' del database.");
+                throw new Error("Nessun dato trovato nel database.");
             }
 
             let studentiList = [];
@@ -93,16 +87,14 @@
                 const stanza = s.room || s.stanza || s.numeroStanza || "";
                 const classe = s.classe || s.className || s.grade || "";
                 
-                // Filtro specifico per le ore 16: controlla varianti comuni dei campi boolean
+                // Controllo flessibile sul booleano del bus pomeridiano delle 16
                 const busPomeriggio = (s.busPomeriggio16 === true || s.bus16 === true || s.busOre16 === true);
                 
                 if (busPomeriggio) {
                     studentiList.push({
-                        id: id,
                         nome: nomeCompleto,
                         stanza: stanza,
-                        classe: classe,
-                        note: s.note || ""
+                        classe: classe
                     });
                 }
             }
@@ -112,14 +104,14 @@
                 return;
             }
 
-            // Ordina alfabeticamente o per stanza
+            // Ordinamento fisso: per stanza, poi per nome alfabetico
             studentiList.sort((a, b) => {
                 if (a.stanza < b.stanza) return -1;
                 if (a.stanza > b.stanza) return 1;
                 return a.nome.localeCompare(b.nome);
             });
 
-            // Distribuzione bilanciata sulle 3 colonne macro
+            // Distribuzione ciclica e pulita sulle 3 colonne macro per la stampa orizzontale
             const colonne = [[], [], []];
             for (let i = 0; i < studentiList.length; i++) {
                 colonne[i % 3].push(studentiList[i]);
@@ -129,32 +121,26 @@
             renderizzaColonna(1, colonne[1]);
             renderizzaColonna(2, colonne[2]);
 
-            // Aggancia l'evento interattivo per depennare la riga al click del checkbox
-            inizializzaInterazioni();
-
         } catch (error) {
-            console.error("Errore nel caricamento da Firebase:", error);
-            mostreErrore(`Impossibile caricare i dati: ${error.message}`);
+            console.error("Errore di caricamento:", error);
+            mostraErrore(`Errore: ${error.message}`);
         }
     }
 
     function mostraMessaggioCaricamento() {
-        const loadingHtml = `<div class="loading-message">⏳ Caricamento elenco bus 16:00 da Firebase...</div>`;
-        document.getElementById('col0').innerHTML = loadingHtml;
+        document.getElementById('col0').innerHTML = `<div class="loading-message">⏳ Caricamento passeggeri ore 16:00...</div>`;
         document.getElementById('col1').innerHTML = '';
         document.getElementById('col2').innerHTML = '';
     }
 
     function mostraMessaggioNessunDato() {
-        const msg = `<div class="error-message" style="background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border-2);">ℹ️ Nessuno studente con bus pomeriggio ore 16:00 trovato nel database.</div>`;
-        document.getElementById('col0').innerHTML = msg;
+        document.getElementById('col0').innerHTML = `<div class="error-message" style="background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border-2);">ℹ️ Nessun passeggero registrato per le ore 16:00.</div>`;
         document.getElementById('col1').innerHTML = '';
         document.getElementById('col2').innerHTML = '';
     }
 
-    function mostreErrore(messaggio) {
-        const errHtml = `<div class="error-message" style="color: var(--absent); background: var(--absent-dim); border: 1px solid var(--absent);">❌ ${messaggio}</div>`;
-        document.getElementById('col0').innerHTML = errHtml;
+    function mostraErrore(messaggio) {
+        document.getElementById('col0').innerHTML = `<div class="error-message" style="color: var(--absent); background: var(--absent-dim); border: 1px solid var(--absent);">❌ ${messaggio}</div>`;
         document.getElementById('col1').innerHTML = '';
         document.getElementById('col2').innerHTML = '';
     }
@@ -164,45 +150,22 @@
         if (!container) return;
         
         if (!studentiArray || studentiArray.length === 0) {
-            container.innerHTML = '<div class="loading-message" style="opacity: 0.5;">— nessun passeggero —</div>';
+            container.innerHTML = '<div class="loading-message" style="opacity: 0.4;">— vuoto —</div>';
             return;
         }
 
         let html = '';
         for (let studente of studentiArray) {
-            const checkId = `pres_16_${indiceColonna}_${studente.id.replace(/[.#$[\]]/g, '_')}`;
+            // Struttura originale ad hoc pulita (solo Room, Nome, Classe)
             html += `
                 <div class="row-student">
                     <div class="cell-room">${escapeHtml(studente.stanza)}</div>
                     <div class="cell-name"><b>${escapeHtml(studente.nome)}</b></div>
                     <div class="cell-class">${escapeHtml(studente.classe)}</div>
-                    <div class="cell-check">
-                        <input type="checkbox" id="${checkId}" class="presence-check" style="transform: scale(1.1); cursor: pointer;">
-                    </div>
-                    <div class="cell-notes">
-                        <input type="text" placeholder="..." value="${escapeHtml(studente.note)}" class="note-input" data-studentid="${studente.id}">
-                    </div>
                 </div>
             `;
         }
         container.innerHTML = html;
-    }
-
-    // Aggiunge la classe .row-crossed dinamicamente se la spunta è attiva
-    function inizializzaInterazioni() {
-        const checkboxes = document.querySelectorAll('.presence-check');
-        checkboxes.forEach(chk => {
-            chk.addEventListener('change', function() {
-                const parentRow = this.closest('.row-student');
-                if (parentRow) {
-                    if (this.checked) {
-                        parentRow.classList.add('row-crossed');
-                    } else {
-                        parentRow.classList.remove('row-crossed');
-                    }
-                }
-            });
-        });
     }
 
     function escapeHtml(str) {
@@ -217,7 +180,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         caricaStudentiBus16();
-
+        
         const refreshBtn = document.getElementById('refreshDataBtn');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', caricaStudentiBus16);
