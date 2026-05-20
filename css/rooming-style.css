@@ -1,250 +1,326 @@
 /* ============================================================
-   ROOMING-STYLE.CSS — Rooming List
+   DASHBOARD-STYLE.CSS / CRUSCOTTO-STYLE.CSS
+   Estensione e override per il Cruscotto Studenti
+   Eredita e usa le definizioni base di CAMPUS-THEME.CSS
    ============================================================ */
 
-/* ─── BASE ──────────────────────────────────────────────────── */
+/* ─── VARIABILI OVERRIDE PER CRUSCOTTO ─────────────────────── */
+:root {
+    /* Mappatura alias storici per script legacy */
+    --p:              var(--accent);
+    --s:              var(--ok);
+    --d:              var(--absent);
+    --e:              var(--dinner-no);
+    --card-bg:        var(--surface);
+    --permessi:       var(--pp);
+    --highlight-lab:  var(--lab-dim);
+    --lab-text:       var(--lab);
+    --cambiati:       var(--switched);
+    --btn-inactive:   var(--surface-2);
+    --btn-color-1:    var(--btn-t1);
+    --btn-color-2:    var(--btn-t2);
+    --btn-color-3:    var(--btn-t3);
+    --btn-color-4:    var(--btn-t4);
+    --text-dark:      var(--text);
+    --text-muted:     var(--text-2);
+    --border-color:   var(--border);
+
+    /* Specifica Cruscotto: mantiene il fondo scuro nativo */
+    --bg:             #0f1117;
+}
+
+/* Allineamento cromatico per device mobile in Dark Mode */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+    :root {
+        --bg:         #0f1117;
+    }
+}
+
+/* ─── LAYOUT ────────────────────────────────────────────────── */
 body {
-    font-family: var(--font, 'DM Sans', 'Segoe UI', sans-serif);
-    margin: 0;
-    padding: 10px;
-    font-size: 10.5px;
-    line-height: 1.2;
-    background: var(--bg, #0f1117);
-    color: var(--text, #e8ecf4);
+    padding: 0;
+    background: var(--bg);
+}
+
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
 }
 
 /* ─── HEADER ────────────────────────────────────────────────── */
-.header-container {
+header {
+    background: var(--bg-2);
+    border: 1px solid var(--border-2);
+    color: var(--text);
+    padding: 16px 28px;
+    border-radius: var(--radius-xl);
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    border-bottom: 2px solid rgba(79,142,247,0.35);
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    min-height: 56px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    gap: 16px;
 }
 
-.print-logo {
-    display: none;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 44px;
-    width: auto;
-    object-fit: contain;
-}
-
-h1 {
-    margin: 0;
-    font-size: 15px;
+header h1 {
+    font-size: 1.15rem;
     font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    background: linear-gradient(90deg, #4f8ef7, #38d9a9);
+    background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
-/* ─── GRIGLIA ───────────────────────────────────────────────── */
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
+header h1 a {
+    background: inherit;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* ─── SEZIONE PIANO ─────────────────────────────────────────── */
-.section-title {
-    grid-column: span 3;
-    background: var(--bg-2);
-    color: rgba(255,255,255,0.8);
-    padding: 6px 10px;
-    text-align: center;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-top: 10px;
-    font-size: 10px;
-    border-radius: 6px;
-    letter-spacing: 0.1em;
-    border-left: 4px solid #4f8ef7;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+#todayDate {
+    font-size: 0.78rem;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    margin-top: 3px;
 }
 
-/* ─── BOX STANZA ────────────────────────────────────────────── */
-.room-box {
-    border: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    min-height: 32px;
-    background: #161b27;
-    border-radius: 4px;
-    transition: border-color 0.15s;
-}
-
-.room-box:hover { border-color: rgba(79,142,247,0.3); }
-
-/* ─── NUMERO STANZA ─────────────────────────────────────────── */
-.room-info {
-    width: 36px;
-    background: var(--bg-2);
-    border-right: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-    font-size: 11px;
+#digitalClock {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 600;
     color: var(--accent);
-    font-family: var(--font-mono, monospace);
-    flex-shrink: 0;
-    border-radius: 4px 0 0 4px;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 20px var(--accent-dim);
 }
 
-/* ─── LISTA OCCUPANTI ───────────────────────────────────────── */
-.occupants-list {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+header button {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 14px;
+    font-family: var(--font);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t);
+    letter-spacing: 0.04em;
 }
 
-.row-student {
+header button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text);
+}
+
+/* ─── GRID STUDENTI ─────────────────────────────────────────── */
+#listaStudenti {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ─── CARD STUDENTE ─────────────────────────────────────────── */
+.student-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    border-bottom: 4px solid var(--ok);
+    transition: all var(--t);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+}
+
+.student-row:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--border-2);
+}
+
+/* ─── STATI CARD ────────────────────────────────────────────── */
+.student-row.dinner-no {
+    border-bottom-color: var(--dinner-no);
+    background: var(--dinner-no-dim);
+}
+
+.student-row.assente {
+    border-bottom-color: var(--absent);
+    background: var(--absent-dim);
+    opacity: 0.8;
+}
+
+.student-row.highlight-lab {
+    border-bottom-color: var(--lab);
+    border-color: var(--border-2);
+    background: var(--lab-dim);
+}
+
+/* ─── ELEMENTI CARD ─────────────────────────────────────────── */
+.st-header {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 10px;
     align-items: center;
-    padding: 2px 6px;
-    border-bottom: 0.5px solid rgba(255,255,255,0.05);
 }
 
-.row-student:last-child { border-bottom: none; }
-
-.student-name {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 9.5px;
-    color: var(--text, #e8ecf4);
-}
-
-.student-name b {
-    text-transform: uppercase;
-    color: #e8ecf4;
+.room-badge {
+    background: var(--surface-3);
+    color: var(--text-2);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
     font-weight: 700;
-}
-
-.student-details {
-    margin-left: 5px;
-    font-size: 8px;
-    color: var(--accent);
-    font-weight: 700;
-    font-family: var(--font-mono, monospace);
-    flex-shrink: 0;
-}
-
-.percorso-tag {
-    margin-left: 3px;
-    font-weight: normal;
-}
-
-/* ─── PULSANTE STAMPA ───────────────────────────────────────── */
-.no-print { text-align: center; margin: 12px 0; }
-
-.btn {
-    padding: 9px 28px;
-    background: linear-gradient(90deg, #4f8ef7, #38d9a9);
-    color: #0f1117;
-    border: none;
-    cursor: pointer;
-    border-radius: 30px;
-    font-weight: 700;
-    font-family: var(--font, sans-serif);
-    font-size: 12px;
+    font-size: 0.68rem;
+    font-family: var(--font-mono);
     letter-spacing: 0.05em;
-    transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(79,142,247,0.35);
 }
 
-.btn:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
+.lab-badge {
+    color: var(--lab);
+    font-weight: 700;
+    font-size: 0.72rem;
+    animation: pulse 3s infinite;
 }
 
-/* ─── STAMPA ────────────────────────────────────────────────── */
-@media print {
-    .no-print { display: none !important; }
-
-    body {
-        background: white !important;
-        color: black !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .print-logo { display: block !important; }
-
-    h1 {
-        background: none !important;
-        -webkit-text-fill-color: #1a2236 !important;
-        color: #1a2236 !important;
-    }
-
-    .header-container {
-        border-bottom-color: #1a2236 !important;
-    }
-
-    .section-title {
-        background: var(--bg-2) !important;
-        color: white !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .room-box {
-        background: white !important;
-        border: 1px solid #333 !important;
-    }
-
-    .room-info {
-        background: #d1d9e0 !important;
-        border-right: 1px solid #333 !important;
-        color: #1a2236 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .row-student { border-bottom-color: #eee !important; }
-
-    .student-name b { color: black !important; }
-
-    .student-details { color: #1a2236 !important; }
-
-    @page { size: A4 portrait; margin: 0.5cm; }
+.student-row .st-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
 }
 
-/* ─── LIGHT MODE (mobile con sistema chiaro) ────────────────── */
-@media (max-width: 768px) and (prefers-color-scheme: dark) {
-    body { background: var(--bg); color: var(--text); }
+.student-row .st-class {
+    font-size: 0.72rem;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+}
 
-    h1 { background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
-         -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+/* ─── INPUT ORA ─────────────────────────────────────────────── */
+.inputs {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+}
 
-    .header-container { border-bottom-color: rgba(79,142,247,0.35); }
+.inputs input {
+    width: 50%;
+    padding: 7px 8px;
+    background: var(--bg-3);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+    outline: none;
+    transition: border-color var(--t);
+}
 
-    .section-title { background: var(--bg-2); color: var(--text-2);
-                     border-left-color: var(--accent); }
+.inputs input:focus { border-color: var(--accent); }
+.inputs input::placeholder { color: var(--text-muted); }
 
-    .room-box { background: var(--surface); border-color: var(--border); }
-    .room-box:hover { border-color: rgba(37,99,235,0.3); }
+/* ─── BOTTONI CARD ──────────────────────────────────────────── */
+.btns { display: flex; gap: 6px; }
 
-    .room-info { background: var(--surface-2); border-right-color: var(--border);
-                 color: var(--accent); }
+.btns button {
+    flex: 1;
+    padding: 7px 5px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-family: var(--font);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t);
+    letter-spacing: 0.03em;
+}
 
-    .row-student { border-bottom-color: var(--border); }
-    .student-name { color: var(--text); }
-    .student-name b { color: var(--text); }
-    .student-details { color: var(--accent); }
+.btns button:hover {
+    background: var(--surface-3);
+    color: var(--text);
+}
+
+/* Stati attivi pulsanti interni alle card */
+.btns button.active-ass {
+    background: var(--absent);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 2px 10px var(--absent-dim);
+}
+
+.btns button.active-din {
+    background: var(--dinner-no);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 2px 10px var(--dinner-no-dim);
+}
+
+/* ─── BTN SWITCH TURNO ──────────────────────────────────────── */
+.btn-switch {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--t);
+    font-size: 0.85rem;
+}
+
+.btn-switch:hover { background: var(--surface-3); }
+
+.btn-switch.modificato {
+    background: var(--switched);
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 2px 10px var(--accent-2-dim);
+}
+
+/* ─── TURNI ROW ─────────────────────────────────────────────── */
+.turni-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+/* ─── CONNECTION STATUS ─────────────────────────────────────── */
+#connection-status {
+    font-size: 0.68rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: var(--font);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    background: var(--ok-dim);
+    color: var(--ok);
+    border: 1px solid rgba(46, 204, 113, 0.25);
+}
+
+/* ─── PP INDICATOR ──────────────────────────────────────────── */
+.permesso-tag {
+    color: var(--pp);
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+/* ─── MEDIA QUERIES ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+    #listaStudenti { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
+@media (max-width: 768px) {
+    #listaStudenti { grid-template-columns: 1fr 1fr; }
+    header { flex-direction: column; text-align: center; gap: 10px; }
+    .toolbar { flex-wrap: wrap; }
+    .container { padding: 12px; }
 }
