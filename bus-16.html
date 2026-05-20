@@ -2,190 +2,184 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>BUS ore 16 — Trasporto Pomeriggio</title>
-    <link rel="stylesheet" href="css/campus-theme.css">
+    <title>BUS ore 16 — Schema Settimanale Pomeriggio</title>
+    <link rel="stylesheet" href="css/convitto-theme.css">
     <link rel="stylesheet" href="css/bus-style.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
 <div class="no-print">
-    <button class="btn" onclick="window.print()">STAMPA ELENCO</button>
-    <button class="btn" id="refreshDataBtn" style="margin-left: 10px;">⟳ AGGIORNA DATI</button>
+    <button class="btn" onclick="window.print()">STAMPA</button>
+    <button class="btn" id="logoutBtn">LOGOUT</button>
 </div>
 
 <div class="header-main">
     <img src="assets/Logo.png" alt="Logo" class="print-logo">
     <h1>
-        <a href="index.html">Bus Pomeriggio — ore 16</a>
+        <a href="index.html">Settimanale Pomeriggio — ore 16</a>
     </h1>
 </div>
 
 <div class="grid-wrapper" id="mainWrapper">
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
             <div class="cell-class">Classe</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-check">LU</div>
+            <div class="cell-check">MA</div>
+            <div class="cell-check">ME</div>
+            <div class="cell-check">GI</div>
         </div>
         <div id="col0"></div>
     </div>
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
             <div class="cell-class">Classe</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-check">LU</div>
+            <div class="cell-check">MA</div>
+            <div class="cell-check">ME</div>
+            <div class="cell-check">GI</div>
         </div>
         <div id="col1"></div>
     </div>
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
             <div class="cell-class">Classe</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-check">LU</div>
+            <div class="cell-check">MA</div>
+            <div class="cell-check">ME</div>
+            <div class="cell-check">GI</div>
         </div>
         <div id="col2"></div>
     </div>
 </div>
 
-<script>
-    // Configurazione Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyA2CZmgpuWsaLXiKoSQmnigf67MJI44Rus",
-        authDomain: "anagrafica25.firebaseapp.com",
-        databaseURL: "https://anagrafica25-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "anagrafica25",
-        storageBucket: "anagrafica25.firebasestorage.app",
-        messagingSenderId: "724474113103",
-        appId: "1:724474113103:web:065ae533efb97d7a080e3a",
-        measurementId: "G-MBZW81SSH6"
-    };
-
-    // Inizializza Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    // Carica gli studenti associati al bus pomeridiano (ore 16)
-    async function caricaStudentiBus16() {
-        mostraMessaggioCaricamento();
-
-        try {
-            const snapshot = await database.ref('studenti').once('value');
-            const studentiData = snapshot.val();
-
-            if (!studentiData) {
-                throw new Error("Nessun dato trovato nel database.");
+<script type="module">
+    import { initAuth, getStudenti, getConvittori, logout } from "./js/auth.js";
+    
+    // Proteggi la pagina
+    const user = await initAuth(true, "login.html");
+    
+    if (user) {
+        const tutti = await getStudenti();
+        // Filtra convittori (room valida 101-221)
+        let validi = getConvittori(tutti);
+        
+        // Esclude 2A, 2B e classi con "P"
+        validi = validi.filter(s => {
+            const classe = s.classe.toUpperCase();
+            const escluse = ["2A", "2B"];
+            return !escluse.includes(classe) && !classe.includes("P") && s.cognome;
+        });
+        
+        // Ordinamento: classe -> gruppo -> cognome
+        validi.sort((a, b) => {
+            const compClasse = (a.classe || '').localeCompare(b.classe || '', undefined, { numeric: true });
+            if (compClasse !== 0) return compClasse;
+            const gA = a.gruppo || "";
+            const gB = b.gruppo || "";
+            const compGruppo = gA.localeCompare(gB);
+            if (compGruppo !== 0) return compGruppo;
+            return (a.cognome || '').localeCompare(b.cognome || '');
+        });
+        
+        // Costruisci lista con separatori tra classi diverse
+        const elementiFinali = [];
+        let ultimaClasse = null;
+        
+        validi.forEach((studente) => {
+            if (ultimaClasse !== null && studente.classe !== ultimaClasse) {
+                elementiFinali.push({ type: 'separator' });
             }
-
-            let studentiList = [];
-            for (let id in studentiData) {
-                const s = studentiData[id];
-                
-                const nomeCompleto = s.nome && s.cognome ? `${s.nome} ${s.cognome}` : (s.fullName || s.name || "Sconosciuto");
-                const stanza = s.room || s.stanza || s.numeroStanza || "";
-                const classe = s.classe || s.className || s.grade || "";
-                
-                // Controllo flessibile sul booleano del bus pomeridiano delle 16
-                const busPomeriggio = (s.busPomeriggio16 === true || s.bus16 === true || s.busOre16 === true);
-                
-                if (busPomeriggio) {
-                    studentiList.push({
-                        nome: nomeCompleto,
-                        stanza: stanza,
-                        classe: classe
-                    });
-                }
-            }
-
-            if (studentiList.length === 0) {
-                mostraMessaggioNessunDato();
-                return;
-            }
-
-            // Ordinamento fisso: per stanza, poi per nome alfabetico
-            studentiList.sort((a, b) => {
-                if (a.stanza < b.stanza) return -1;
-                if (a.stanza > b.stanza) return 1;
-                return a.nome.localeCompare(b.nome);
-            });
-
-            // Distribuzione ciclica e pulita sulle 3 colonne macro per la stampa orizzontale
-            const colonne = [[], [], []];
-            for (let i = 0; i < studentiList.length; i++) {
-                colonne[i % 3].push(studentiList[i]);
-            }
-
-            renderizzaColonna(0, colonne[0]);
-            renderizzaColonna(1, colonne[1]);
-            renderizzaColonna(2, colonne[2]);
-
-        } catch (error) {
-            console.error("Errore di caricamento:", error);
-            mostraErrore(`Errore: ${error.message}`);
-        }
+            elementiFinali.push({ type: 'student', data: studente });
+            ultimaClasse = studente.classe;
+        });
+        
+        // Distribuzione in 3 colonne
+        const totaleElementi = elementiFinali.length;
+        const itemsPerColonna = Math.ceil(totaleElementi / 3);
+        
+        const colonne = [[], [], []];
+        elementiFinali.forEach((elemento, idx) => {
+            const colonnaIdx = Math.floor(idx / itemsPerColonna);
+            colonne[colonnaIdx].push(elemento);
+        });
+        
+        renderColonna(0, colonne[0]);
+        renderColonna(1, colonne[1]);
+        renderColonna(2, colonne[2]);
     }
-
-    function mostraMessaggioCaricamento() {
-        document.getElementById('col0').innerHTML = `<div class="loading-message">⏳ Caricamento passeggeri ore 16:00...</div>`;
-        document.getElementById('col1').innerHTML = '';
-        document.getElementById('col2').innerHTML = '';
-    }
-
-    function mostraMessaggioNessunDato() {
-        document.getElementById('col0').innerHTML = `<div class="error-message" style="background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border-2);">ℹ️ Nessun passeggero registrato per le ore 16:00.</div>`;
-        document.getElementById('col1').innerHTML = '';
-        document.getElementById('col2').innerHTML = '';
-    }
-
-    function mostraErrore(messaggio) {
-        document.getElementById('col0').innerHTML = `<div class="error-message" style="color: var(--absent); background: var(--absent-dim); border: 1px solid var(--absent);">❌ ${messaggio}</div>`;
-        document.getElementById('col1').innerHTML = '';
-        document.getElementById('col2').innerHTML = '';
-    }
-
-    function renderizzaColonna(indiceColonna, studentiArray) {
-        const container = document.getElementById(`col${indiceColonna}`);
+    
+    function renderColonna(indice, elementi) {
+        const container = document.getElementById(`col${indice}`);
         if (!container) return;
         
-        if (!studentiArray || studentiArray.length === 0) {
-            container.innerHTML = '<div class="loading-message" style="opacity: 0.4;">— vuoto —</div>';
+        if (!elementi || elementi.length === 0) {
+            container.innerHTML = '<div class="loading-message">— nessun passeggero —</div>';
             return;
         }
-
+        
         let html = '';
-        for (let studente of studentiArray) {
-            // Struttura originale ad hoc pulita (solo Room, Nome, Classe)
-            html += `
-                <div class="row-student">
-                    <div class="cell-room">${escapeHtml(studente.stanza)}</div>
-                    <div class="cell-name"><b>${escapeHtml(studente.nome)}</b></div>
-                    <div class="cell-class">${escapeHtml(studente.classe)}</div>
-                </div>
-            `;
+        for (let el of elementi) {
+            if (el.type === 'separator') {
+                html += `<div class="class-separator"></div>`;
+            } else {
+                const s = el.data;
+                const infoClasse = `${s.classe || '—'} ${s.percorso || ''} ${s.gruppo ? '• ' + s.gruppo : ''}`.trim();
+                
+                let bgClass = "";
+                if (s.classe === "5A") {
+                    if (s.gruppo === "G1") bgClass = "bg-5a-g1";
+                    if (s.gruppo === "G2") bgClass = "bg-5a-g2";
+                } else if (s.classe === "5B") {
+                    if (s.gruppo === "G1") bgClass = "bg-5b-g1";
+                    if (s.gruppo === "G2") bgClass = "bg-5b-g2";
+                }
+                
+                html += `
+                    <div class="student-row ${bgClass}">
+                        <div class="cell-class">${escapeHtml(infoClasse)}</div>
+                        <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                    </div>
+                `;
+            }
         }
         container.innerHTML = html;
+        
+        // Aggiungi event listener
+        container.querySelectorAll('.student-row').forEach(row => {
+            const nameCell = row.querySelector('.cell-name');
+            const checkBoxes = row.querySelectorAll('.check-box');
+            
+            if (nameCell) {
+                nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
+            }
+            checkBoxes.forEach(checkBox => {
+                checkBox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    checkBox.classList.toggle('checked');
+                });
+            });
+        });
     }
-
+    
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
+        return String(str).replace(/[&<>]/g, (m) => {
             if (m === '&') return '&amp;';
             if (m === '<') return '&lt;';
             if (m === '>') return '&gt;';
             return m;
         });
     }
-
-    window.addEventListener('DOMContentLoaded', () => {
-        caricaStudentiBus16();
-        
-        const refreshBtn = document.getElementById('refreshDataBtn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', caricaStudentiBus16);
-        }
-    });
+    
+    document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
 </script>
 </body>
 </html>
