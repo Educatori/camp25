@@ -68,37 +68,27 @@ import {
     getConvittori
 } from "./js/auth.js";
 
-import { renderBus8 } from "./js/bus-8-script.js";
-
-/* =========================================================
-   Attende autenticazione Firebase
-   ========================================================= */
+import {
+    renderBus8
+} from "./js/bus-8-script.js";
 
 document.addEventListener("authReady", async () => {
 
     try {
 
-        // Carica tutto il DB
         const data = await getConvittoData();
 
-        // Recupera lista studenti
-        const tuttiStudenti = data.studenti || [];
+        // Firebase object -> array
+        const tuttiStudenti = Object.values(data.studenti || {});
 
-        // Filtra convittori
         const convittori = getConvittori(tuttiStudenti);
 
-        // Render pagina
-        renderBus8(convittori, data);
+        renderBus8(convittori);
 
     } catch (err) {
 
         console.error("Errore caricamento dati:", err);
 
-        document.body.innerHTML = `
-            <div style="padding:40px;font-family:sans-serif">
-                Errore caricamento dati Firebase
-            </div>
-        `;
     }
 
 });
