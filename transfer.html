@@ -11,6 +11,7 @@
 
 <div class="no-print">
     <button class="btn" onclick="window.print()">STAMPA</button>
+    <button class="btn" id="logoutBtn">LOGOUT</button>
 </div>
 
 <div class="header-container">
@@ -20,8 +21,100 @@
 
 <div class="grid-container" id="mainGrid"></div>
 
-<script src="js/studenti_25-26.js"></script>
-<script src="js/permessi.js"></script>
-<script src="js/transfer-script.js"></script>
+<script type="module">
+    // 1. Importiamo le funzioni centralizzate di Firebase da auth.js
+    import { initAuth, getStudenti, logout } from "./js/auth.js";
+    
+    // Se nel file auth.js hai una funzione specifica per filtrare chi va a pranzo, importala qui.
+    // Altrimenti puoi filtrarli direttamente in questa pagina (vedi sotto).
+    // Esempio: import { getStudentiPranzo } from "./js/auth.js";
+
+    // 2. Proteggiamo la pagina e controlliamo l'autenticazione
+    const user = await initAuth(true, "login.html");
+    
+    if (user) {
+        try {
+            // Recuperiamo tutti gli studenti in tempo reale da Firebase
+            const tuttiIStudenti = await getStudenti();
+            
+            // 3. Logica di filtraggio per il pranzo
+            // NOTA: Se nel vecchio 'transfer-script.js' avevi una logica particolare (es. controllare permessi 
+            // o un campo specifico come s.pranzo === true), applicala qui dentro.
+            const studentiPranzo = tuttiIStudenti.filter(s => {
+                // Modifica questa condizione in base a come sono salvati i dati dei trasferimenti nel tuo database
+                return s.transferPranzo === true || s.pranzo === true; 
+            });
+            
+            // 4. Ordinamento (es. per stanza, come l'altra pagina)
+            studentiPranzo.sort((a, b) => {
+                const stanzaA = parseInt(a.stanza) || 999;
+                const stanzaB = parseInt(b.stanza) || 999;
+                return stanzaA - stanzaB;
+            });
+            
+            // 5. Rendering della griglia
+            renderGrigliaPranzo(studentiPranzo);
+
+        } catch (error) {
+            console.error("Errore durante il recupero dei dati:", error);
+            document.getElementById("mainGrid").innerHTML = '<div class="error-message">Errore nel caricamento dei dati.</div>';
+        }
+    }
+    
+    function renderGrigliaPranzo(studenti) {
+        const container = document.getElementById("mainGrid");
+        if (!container) return;
+        
+        if (!studenti || studenti.length === 0) {
+            container.innerHTML = '<div class="loading-message">— nessun passeggero per il pranzo —</div>';
+            return;
+        }
+        
+        let html = '';
+        for (let s of studenti) {
+            // Costruisci le righe o le card usando le classi presenti in 'transfer-style.css'
+            // Nota: Ho mantenuto la struttura standard, adattala se il vecchio script usava tag diversi
+            html += `
+                <div class="student-row">
+                    <div class="cell-room">${escapeHtml(s.stanza || '—')}</div>
+                    <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
+                    <div class="cell-class">${escapeHtml(s.classe || '—')}</div>
+                    <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                    <div class="cell-notes"><div class="line-notes"></div></div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+        
+        // Gestione degli eventi click per depennare o spuntare le presenze
+        container.querySelectorAll('.student-row').forEach(row => {
+            const nameCell = row.querySelector('.cell-name');
+            const checkBox = row.querySelector('.check-box');
+            
+            if (nameCell) {
+                nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
+            }
+            if (checkBox) {
+                checkBox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    checkBox.classList.toggle('checked');
+                });
+            }
+        });
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, (m) => {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // Gestione del tasto Logout
+    document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
+</script>
 </body>
 </html>
