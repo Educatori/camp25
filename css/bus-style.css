@@ -285,7 +285,7 @@ h1 {
 }
 
 /* ─── LIGHT MODE (mobile con sistema chiaro) ────────────────── */
-@media (max-width: 768px) and (prefers-color-scheme: dark) {
+@media (max-width: 10000000px) and (prefers-color-scheme: dark) {
     body { background: var(--bg); color: var(--text); }
 
     h1 { background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
