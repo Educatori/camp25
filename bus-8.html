@@ -5,54 +5,21 @@
     <title>BUS ore 8 — Trasporto Mattino</title>
     <link rel="stylesheet" href="css/campus-theme.css">
     <link rel="stylesheet" href="css/bus-style.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <style>
-        /* piccolo stile aggiuntivo per feedback caricamento */
-        .loading-message {
-            text-align: center;
-            padding: 2rem;
-            font-size: 1.2rem;
-            color: #2c3e66;
-            grid-column: 1 / -1;
-        }
-        .error-message {
-            text-align: center;
-            padding: 2rem;
-            color: #b00020;
-            background: #ffe6e6;
-            border-radius: 8px;
-            grid-column: 1 / -1;
-        }
-        .cell-notes input {
-            width: 90%;
-            padding: 4px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-        .cell-check input {
-            transform: scale(1.1);
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
 
 <div class="no-print">
     <button class="btn" onclick="window.print()">STAMPA</button>
-    <button class="btn" id="refreshDataBtn" style="margin-left: 10px;">⟳ AGGIORNA DATI</button>
+    <button class="btn" id="logoutBtn" style="background:#6b7280;">🚪 LOGOUT</button>
 </div>
 
 <div class="header-main">
     <img src="assets/Logo.png" alt="Logo" class="print-logo">
-    <h1>
-        <a href="index.html">Bus Mattino — ore 8</a>
-    </h1>
+    <h1>Bus Mattino — ore 8</h1>
 </div>
 
 <div class="grid-wrapper" id="mainWrapper">
+    <!-- colonne come prima -->
     <div class="macro-column">
         <div class="column-header">
             <div class="cell-room">Room</div>
@@ -85,168 +52,73 @@
     </div>
 </div>
 
-<script>
-    // Configurazione Firebase (già fornita)
-    const firebaseConfig = {
-        apiKey: "AIzaSyA2CZmgpuWsaLXiKoSQmnigf67MJI44Rus",
-        authDomain: "anagrafica25.firebaseapp.com",
-        databaseURL: "https://anagrafica25-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "anagrafica25",
-        storageBucket: "anagrafica25.firebasestorage.app",
-        messagingSenderId: "724474113103",
-        appId: "1:724474113103:web:065ae533efb97d7a080e3a",
-        measurementId: "G-MBZW81SSH6"
-    };
-
-    // Inizializza Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    // Funzione principale: carica studenti dal nodo "studenti" (o "studenti_25_26")
-    // Filtra quelli con busMattina8 === true
-    async function caricaStudentiBus8() {
-        // Mostra caricamento nelle colonne
-        mostraMessaggioCaricamento();
-
-        try {
-            // 1. Prendo i dati dal percorso "studenti" (Realtime Database)
-            //    Se il tuo database usa un nome diverso (es. "studenti_25_26") modifica qua.
-            const snapshot = await database.ref('studenti').once('value');
-            const studentiData = snapshot.val();
-
-            if (!studentiData) {
-                throw new Error("Nessun dato trovato nel nodo 'studenti' del database.");
-            }
-
-            // Trasforma l'oggetto in array di studenti con ID e campi normalizzati
-            let studentiList = [];
-            for (let id in studentiData) {
-                const s = studentiData[id];
-                // Normalizza i campi (supporta sia italiano che inglese)
-                const nomeCompleto = s.nome && s.cognome ? `${s.nome} ${s.cognome}` : (s.fullName || s.name || "Sconosciuto");
-                const stanza = s.room || s.stanza || s.numeroStanza || "";
-                const classe = s.classe || s.className || s.grade || "";
-                const busMattina = (s.busMattina8 === true || s.bus8 === true || s.busOre8 === true);
-                
-                if (busMattina) {
-                    studentiList.push({
-                        id: id,
-                        nome: nomeCompleto,
-                        stanza: stanza,
-                        classe: classe,
-                        note: s.note || ""   // eventuale nota predefinita (opzionale)
-                    });
-                }
-            }
-
-            if (studentiList.length === 0) {
-                mostraMessaggioNessunDato();
-                return;
-            }
-
-            // Ordina per stanza (per tenere ordine logico)
-            studentiList.sort((a, b) => {
-                if (a.stanza < b.stanza) return -1;
-                if (a.stanza > b.stanza) return 1;
-                return a.nome.localeCompare(b.nome);
-            });
-
-            // Distribuzione su 3 colonne (equilibrata)
-            const colonne = [[], [], []];
-            for (let i = 0; i < studentiList.length; i++) {
-                const idxColonna = i % 3;
-                colonne[idxColonna].push(studentiList[i]);
-            }
-
-            // Renderizza ogni colonna
-            renderizzaColonna(0, colonne[0]);
-            renderizzaColonna(1, colonne[1]);
-            renderizzaColonna(2, colonne[2]);
-
-        } catch (error) {
-            console.error("Errore nel caricamento da Firebase:", error);
-            mostraErrore(`Impossibile caricare i dati: ${error.message}`);
-        }
+<script type="module">
+    import { initAuth, getStudenti, getStudentiBus8, logout } from "./js/auth.js";
+    
+    // Attiva protezione login
+    await initAuth(true, "login.html");
+    
+    // Carica e visualizza studenti bus 8:00
+    async function caricaLista() {
+        const tutti = await getStudenti();
+        const studentiBus8 = getStudentiBus8(tutti);
+        
+        // Ordina per stanza
+        studentiBus8.sort((a, b) => {
+            if (a.stanza < b.stanza) return -1;
+            if (a.stanza > b.stanza) return 1;
+            return a.nomeCompleto.localeCompare(b.nomeCompleto);
+        });
+        
+        // Distribuisci su 3 colonne
+        const colonne = [[], [], []];
+        studentiBus8.forEach((s, i) => colonne[i % 3].push(s));
+        
+        // Renderizza (funzione di rendering come prima)
+        renderColonna(0, colonne[0]);
+        renderColonna(1, colonne[1]);
+        renderColonna(2, colonne[2]);
     }
-
-    // Mostra messaggio di caricamento nelle 3 colonne
-    function mostraMessaggioCaricamento() {
-        const loadingHtml = `<div class="loading-message">⏳ Caricamento elenco bus 8:00 da Firebase...</div>`;
-        document.getElementById('col0').innerHTML = loadingHtml;
-        document.getElementById('col1').innerHTML = '';
-        document.getElementById('col2').innerHTML = '';
-    }
-
-    function mostraMessaggioNessunDato() {
-        const msg = `<div class="error-message" style="background:#fff3cd; color:#856404;">ℹ️ Nessuno studente con bus mattina ore 8:00 (campo 'busMattina8: true') trovato nel database.</div>`;
-        document.getElementById('col0').innerHTML = msg;
-        document.getElementById('col1').innerHTML = '';
-        document.getElementById('col2').innerHTML = '';
-    }
-
-    function mostraErrore(messaggio) {
-        const errHtml = `<div class="error-message">❌ ${messaggio}<br><small>Verifica la struttura dati: deve esistere il nodo 'studenti' con campi (nome, cognome, stanza, classe, busMattina8: true)</small></div>`;
-        document.getElementById('col0').innerHTML = errHtml;
-        document.getElementById('col1').innerHTML = '';
-        document.getElementById('col2').innerHTML = '';
-    }
-
-    // Renderizza una singola colonna (macro-colonna)
-    function renderizzaColonna(indiceColonna, studentiArray) {
-        const container = document.getElementById(`col${indiceColonna}`);
+    
+    function renderColonna(indice, studenti) {
+        const container = document.getElementById(`col${indice}`);
         if (!container) return;
         
-        if (!studentiArray || studentiArray.length === 0) {
-            container.innerHTML = '<div class="loading-message" style="background:#f9f9f9;">— nessun passeggero —</div>';
+        if (studenti.length === 0) {
+            container.innerHTML = '<div class="loading-message">— nessun passeggero —</div>';
             return;
         }
-
+        
         let html = '';
-        for (let studente of studentiArray) {
-            // genero un id univoco per il checkbox (non serve a backend, solo per interfaccia)
-            const checkId = `pres_${indiceColonna}_${studente.id.replace(/[.#$[\]]/g, '_')}`;
+        for (let s of studenti) {
             html += `
                 <div class="row-student">
-                    <div class="cell-room">${escapeHtml(studente.stanza)}</div>
-                    <div class="cell-name">${escapeHtml(studente.nome)}</div>
-                    <div class="cell-class">${escapeHtml(studente.classe)}</div>
-                    <div class="cell-check">
-                        <input type="checkbox" id="${checkId}" class="presence-check">
-                    </div>
-                    <div class="cell-notes">
-                        <input type="text" placeholder="Note trasporto" class="note-input" data-studentid="${studente.id}">
-                    </div>
+                    <div class="cell-room">${escapeHtml(s.stanza)}</div>
+                    <div class="cell-name">${escapeHtml(s.nomeCompleto)}</div>
+                    <div class="cell-class">${escapeHtml(s.classe)}</div>
+                    <div class="cell-check"><input type="checkbox"></div>
+                    <div class="cell-notes"><input type="text" placeholder="Note"></div>
                 </div>
             `;
         }
         container.innerHTML = html;
     }
-
-    // semplicissima funzione anti-XSS
+    
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
+        return str.replace(/[&<>]/g, (m) => {
             if (m === '&') return '&amp;';
             if (m === '<') return '&lt;';
             if (m === '>') return '&gt;';
             return m;
-        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-            return c;
         });
     }
-
-    // Avvio al caricamento della pagina
-    window.addEventListener('DOMContentLoaded', () => {
-        caricaStudentiBus8();
-
-        // bottone per refresh manuale
-        const refreshBtn = document.getElementById('refreshDataBtn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
-                caricaStudentiBus8();
-            });
-        }
-    });
+    
+    // Logout
+    document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
+    
+    // Avvia
+    caricaLista();
 </script>
 </body>
 </html>
