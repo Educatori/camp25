@@ -2,33 +2,20 @@
    BUS-STYLE.CSS — Bus mattino (8) e pomeriggio (16)
    ============================================================ */
 
-/* ─── VARIABILI LOCALI ──────────────────────────────────────── */
-:root {
-    --col-header-bg:  #1a2236;
-    --row-border:     #2a3550;
-    --row-alt:        #1a2236;
-    --row-crossed-bg: rgba(231,76,60,0.12);
-    --check-ok:       #2ecc71;
-    --bg-5a-g1:       rgba(79,142,247,0.10);
-    --bg-5a-g2:       rgba(56,217,169,0.10);
-    --bg-5b-g1:       rgba(243,156,18,0.10);
-    --bg-5b-g2:       rgba(232,67,147,0.10);
-}
-
 /* ─── BASE ──────────────────────────────────────────────────── */
 body {
     font-family: var(--font, 'DM Sans', 'Segoe UI', sans-serif);
     margin: 0;
     padding: 10px;
     font-size: 10px;
-    background: var(--bg, #0f1117);
-    color: var(--text, #e8ecf4);
+    background: var(--bg);
+    color: var(--text);
 }
 
 /* ─── HEADER ────────────────────────────────────────────────── */
 .header-main {
     text-align: center;
-    border-bottom: 2px solid rgba(79,142,247,0.35);
+    border-bottom: 2px solid var(--border-2);
     margin-bottom: 12px;
     padding: 8px 0 10px;
     display: flex;
@@ -55,7 +42,7 @@ h1 {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    background: linear-gradient(90deg, #4f8ef7, #38d9a9);
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -71,8 +58,8 @@ h1 {
 /* ─── INTESTAZIONE COLONNA ──────────────────────────────────── */
 .column-header {
     display: flex;
-    background: var(--col-header-bg);
-    color: rgba(255,255,255,0.7);
+    background: var(--bg-2);
+    color: var(--text-2);
     font-weight: 700;
     padding: 5px 4px;
     border-radius: 6px 6px 0 0;
@@ -80,7 +67,7 @@ h1 {
     margin-bottom: 2px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    border: 1px solid rgba(79,142,247,0.2);
+    border: 1px solid var(--border);
     border-bottom: none;
 }
 
@@ -90,32 +77,32 @@ h1 {
     align-items: center;
     padding: 3px 5px;
     margin-bottom: 1px;
-    border: 0.5px solid var(--row-border);
+    border: 0.5px solid var(--border);
     border-radius: 2px;
     background: transparent;
     transition: background 0.15s;
     page-break-inside: avoid;
 }
 
-.student-row:nth-child(even) { background: var(--row-alt); }
-.student-row:hover { background: rgba(79,142,247,0.06); }
+.student-row:nth-child(even) { background: var(--surface-2); }
+.student-row:hover { background: var(--accent-dim); }
 
-/* ─── STATI ─────────────────────────────────────────────────── */
+/* ─── STATI E BADGE GRUPPO ──────────────────────────────────── */
 .row-crossed {
     text-decoration: line-through;
     opacity: 0.45;
-    background: var(--row-crossed-bg) !important;
+    background: var(--absent-dim) !important;
 }
 
-.bg-5a-g1 { background: var(--bg-5a-g1) !important; }
-.bg-5a-g2 { background: var(--bg-5a-g2) !important; }
-.bg-5b-g1 { background: var(--bg-5b-g1) !important; }
-.bg-5b-g2 { background: var(--bg-5b-g2) !important; }
+.bg-5a-g1 { background: var(--accent-dim) !important; }
+.bg-5a-g2 { background: var(--accent-2-dim) !important; }
+.bg-5b-g1 { background: var(--lab-dim) !important; }
+.bg-5b-g2 { background: var(--absent-dim) !important; }
 
 /* ─── SEPARATORE CLASSI ─────────────────────────────────────── */
 .class-separator {
     height: 3px;
-    background: rgba(79,142,247,0.25);
+    background: var(--border-2);
     margin: 2px 0;
     border-radius: 2px;
 }
@@ -127,7 +114,7 @@ h1 {
     font-family: var(--font-mono, monospace);
     font-size: 8.5px;
     color: var(--accent);
-    border-right: 1px solid rgba(255,255,255,0.07);
+    border-right: 1px solid var(--border);
     flex-shrink: 0;
 }
 
@@ -140,7 +127,7 @@ h1 {
     font-size: 9px;
 }
 
-.cell-name b { color: var(--text, #e8ecf4); }
+.cell-name b { color: var(--text); }
 
 .cell-class {
     width: 48px;
@@ -166,20 +153,20 @@ h1 {
 .check-box {
     width: 12px;
     height: 12px;
-    border: 1.5px solid rgba(255,255,255,0.2);
+    border: 1.5px solid var(--border-2);
     border-radius: 2px;
     margin: 0 auto;
-    background: rgba(255,255,255,0.03);
+    background: var(--surface-2);
     cursor: pointer;
     transition: all 0.15s;
     position: relative;
 }
 
-.check-box:hover { border-color: var(--check-ok); }
+.check-box:hover { border-color: var(--ok); }
 
 .check-box.checked {
-    background: rgba(46,204,113,0.15);
-    border-color: var(--check-ok);
+    background: var(--ok-dim);
+    border-color: var(--ok);
 }
 
 .check-box.checked::after {
@@ -190,14 +177,14 @@ h1 {
     align-items: center;
     justify-content: center;
     font-size: 8px;
-    color: var(--check-ok);
+    color: var(--ok);
     line-height: 1;
 }
 
 /* ─── LINEA NOTE ────────────────────────────────────────────── */
 .line-notes {
     width: 88%;
-    border-bottom: 0.5px solid rgba(255,255,255,0.15);
+    border-bottom: 0.5px solid var(--border-2);
     height: 10px;
     margin: 0 auto;
 }
@@ -207,8 +194,8 @@ h1 {
 
 .btn {
     padding: 9px 28px;
-    background: linear-gradient(90deg, #4f8ef7, #38d9a9);
-    color: #0f1117;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    color: var(--text-inv);
     border: none;
     cursor: pointer;
     border-radius: 30px;
@@ -217,16 +204,16 @@ h1 {
     font-size: 12px;
     letter-spacing: 0.05em;
     transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(79,142,247,0.35);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
 }
 
 .btn:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(79,142,247,0.5);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
 }
 
-/* ─── STAMPA ────────────────────────────────────────────────── */
+/* ─── STAMPA Semantica e Dinamica ──────────────────────────── */
 @media print {
     .no-print { display: none !important; }
 
@@ -240,79 +227,50 @@ h1 {
     .print-logo { display: block !important; }
 
     .header-main {
-        border-bottom: 2px solid #1a2236 !important;
+        border-bottom: 2px solid var(--text) !important;
     }
 
     h1 {
         background: none !important;
-        -webkit-text-fill-color: #1a2236 !important;
-        color: #1a2236 !important;
+        -webkit-text-fill-color: var(--text) !important;
+        color: var(--text) !important;
     }
 
     .column-header {
-        background: var(--bg-2) !important;
-        color: white !important;
+        background: var(--bg-3) !important;
+        color: var(--text) !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
     .student-row {
-        border-color: #ccc !important;
-        background: white !important;
+        border-color: var(--border) !important;
+        background: transparent !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
-    .student-row:nth-child(even) { background: #f5f5f5 !important; }
-    .bg-5b-g1 { background: #e8e8e8 !important; }
-    .bg-5b-g2 { background: #f2f2f2 !important; }
+    .student-row:nth-child(even) { background: var(--surface-2) !important; }
+    
+    /* Mantenimento semantico dei badge dei gruppi anche in stampa */
+    .bg-5a-g1 { background: var(--accent-dim) !important; }
+    .bg-5a-g2 { background: var(--accent-2-dim) !important; }
+    .bg-5b-g1 { background: var(--lab-dim) !important; }
+    .bg-5b-g2 { background: var(--absent-dim) !important; }
 
     .check-box {
-        border: 1.5px solid #333 !important;
-        background: white !important;
+        border-color: var(--text) !important;
+        background: transparent !important;
     }
 
-    .check-box.checked::after { color: #2e7d32 !important; }
+    .check-box.checked::after { color: var(--ok) !important; }
 
-    .line-notes { border-bottom-color: #bbb !important; }
+    .line-notes { border-bottom-color: var(--border-2) !important; }
 
-    .cell-room { color: #1a2236 !important; }
-    .cell-name b { color: black !important; }
+    .cell-room { color: var(--text) !important; }
+    .cell-name b { color: var(--text) !important; }
 
-    .class-separator { background: var(--bg-2) !important; }
+    .class-separator { background: var(--border-2) !important; }
 
     @page { size: A4 landscape; margin: 0.8cm; }
-}
-
-/* ─── LIGHT MODE (mobile con sistema chiaro) ────────────────── */
-@media (max-width: 10000000px) and (prefers-color-scheme: dark) {
-    body { background: var(--bg); color: var(--text); }
-
-    h1 { background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
-         -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-    .header-main { border-bottom-color: rgba(79,142,247,0.35); }
-
-    .column-header { background: var(--bg-2); color: var(--text-2);
-                     border-color: rgba(79,142,247,0.2); }
-
-    .student-row { border-color: var(--border); }
-    .student-row:nth-child(even) { background: var(--surface-2); }
-    .student-row:hover { background: rgba(79,142,247,0.06); }
-
-    .cell-room { color: var(--accent); border-right-color: var(--border); }
-    .cell-name b { color: var(--text); }
-    .cell-class { color: var(--text-muted); }
-
-    .check-box { border-color: var(--border-2); background: var(--surface-2); }
-    .check-box.checked { background: var(--ok-dim); border-color: var(--ok); }
-    .check-box.checked::after { color: var(--ok); }
-
-    .line-notes { border-bottom-color: var(--border-2); }
-    .class-separator { background: rgba(79,142,247,0.2); }
-
-    .bg-5b-g1 { background: rgba(79,142,247,0.07) !important; }
-    .bg-5b-g2 { background: rgba(56,217,169,0.07) !important; }
-    .bg-5a-g1 { background: rgba(79,142,247,0.07) !important; }
-    .bg-5a-g2 { background: rgba(56,217,169,0.07) !important; }
 }
