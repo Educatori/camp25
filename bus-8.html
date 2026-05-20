@@ -54,16 +54,12 @@
 </div>
 
 <script type="module">
-    // Solo AGGIUNTA: autenticazione e caricamento dati
-    // La grafica rimane IDENTICA all'originale
-    
     import { initAuth, getStudenti, getStudentiBus8, logout } from "./js/auth.js";
     
     // Proteggi la pagina
     const user = await initAuth(true, "login.html");
     
     if (user) {
-        // Carica studenti e filtra bus 8:00 (classe + convittore)
         const tutti = await getStudenti();
         const studentiBus8 = getStudentiBus8(tutti);
         
@@ -78,7 +74,6 @@
         const colonne = [[], [], []];
         studentiBus8.forEach((s, i) => colonne[i % 3].push(s));
         
-        // Renderizza (senza cambiare struttura HTML)
         renderColonna(0, colonne[0]);
         renderColonna(1, colonne[1]);
         renderColonna(2, colonne[2]);
@@ -96,16 +91,32 @@
         let html = '';
         for (let s of studenti) {
             html += `
-                <div class="row-student">
+                <div class="student-row">
                     <div class="cell-room">${escapeHtml(s.stanza || '—')}</div>
-                    <div class="cell-name">${escapeHtml(s.nomeCompleto)}</div>
-                    <div class="cell-class">${escapeHtml(s.classe)}</div>
-                    <div class="cell-check"><input type="checkbox"></div>
-                    <div class="cell-notes"><input type="text" placeholder="Note"></div>
+                    <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
+                    <div class="cell-class">${escapeHtml(s.classe || '—')}</div>
+                    <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                    <div class="cell-notes"><div class="line-notes"></div></div>
                 </div>
             `;
         }
         container.innerHTML = html;
+        
+        // Aggiungi event listener dopo aver inserito nell'HTML
+        container.querySelectorAll('.student-row').forEach(row => {
+            const nameCell = row.querySelector('.cell-name');
+            const checkBox = row.querySelector('.check-box');
+            
+            if (nameCell) {
+                nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
+            }
+            if (checkBox) {
+                checkBox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    checkBox.classList.toggle('checked');
+                });
+            }
+        });
     }
     
     function escapeHtml(str) {
@@ -118,7 +129,6 @@
         });
     }
     
-    // Logout
     document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
 </script>
 </body>
