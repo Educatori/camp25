@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>BUS ore 16 — Schema Settimanale Pomeriggio</title>
-    <link rel="stylesheet" href="css/campus-theme.css">
+    <link rel="stylesheet" href="css/convitto-theme.css">
     <link rel="stylesheet" href="css/bus-style.css">
 </head>
 <body>
 
 <div class="no-print">
     <button class="btn" onclick="window.print()">STAMPA</button>
+    <button class="btn" id="logoutBtn">LOGOUT</button>
 </div>
 
 <div class="header-main">
@@ -55,8 +56,130 @@
     </div>
 </div>
 
-<script src="js/studenti_25-26.js"></script>
-<script src="js/convittori.js"></script>
-<script src="js/bus-16-script.js"></script>
+<script type="module">
+    import { initAuth, getStudenti, getConvittori, logout } from "./js/auth.js";
+    
+    // Proteggi la pagina
+    const user = await initAuth(true, "login.html");
+    
+    if (user) {
+        const tutti = await getStudenti();
+        // Filtra convittori (room valida 101-221)
+        let validi = getConvittori(tutti);
+        
+        // Esclude 2A, 2B e classi con "P"
+        validi = validi.filter(s => {
+            const classe = s.classe.toUpperCase();
+            const escluse = ["2A", "2B"];
+            return !escluse.includes(classe) && !classe.includes("P") && s.cognome;
+        });
+        
+        // Ordinamento: classe -> gruppo -> cognome
+        validi.sort((a, b) => {
+            const compClasse = (a.classe || '').localeCompare(b.classe || '', undefined, { numeric: true });
+            if (compClasse !== 0) return compClasse;
+            const gA = a.gruppo || "";
+            const gB = b.gruppo || "";
+            const compGruppo = gA.localeCompare(gB);
+            if (compGruppo !== 0) return compGruppo;
+            return (a.cognome || '').localeCompare(b.cognome || '');
+        });
+        
+        // Costruisci lista con separatori tra classi diverse
+        const elementiFinali = [];
+        let ultimaClasse = null;
+        
+        validi.forEach((studente) => {
+            if (ultimaClasse !== null && studente.classe !== ultimaClasse) {
+                elementiFinali.push({ type: 'separator' });
+            }
+            elementiFinali.push({ type: 'student', data: studente });
+            ultimaClasse = studente.classe;
+        });
+        
+        // Distribuzione in 3 colonne
+        const totaleElementi = elementiFinali.length;
+        const itemsPerColonna = Math.ceil(totaleElementi / 3);
+        
+        const colonne = [[], [], []];
+        elementiFinali.forEach((elemento, idx) => {
+            const colonnaIdx = Math.floor(idx / itemsPerColonna);
+            colonne[colonnaIdx].push(elemento);
+        });
+        
+        renderColonna(0, colonne[0]);
+        renderColonna(1, colonne[1]);
+        renderColonna(2, colonne[2]);
+    }
+    
+    function renderColonna(indice, elementi) {
+        const container = document.getElementById(`col${indice}`);
+        if (!container) return;
+        
+        if (!elementi || elementi.length === 0) {
+            container.innerHTML = '<div class="loading-message">— nessun passeggero —</div>';
+            return;
+        }
+        
+        let html = '';
+        for (let el of elementi) {
+            if (el.type === 'separator') {
+                html += `<div class="class-separator"></div>`;
+            } else {
+                const s = el.data;
+                const infoClasse = `${s.classe || '—'} ${s.percorso || ''} ${s.gruppo ? '• ' + s.gruppo : ''}`.trim();
+                
+                let bgClass = "";
+                if (s.classe === "5A") {
+                    if (s.gruppo === "G1") bgClass = "bg-5a-g1";
+                    if (s.gruppo === "G2") bgClass = "bg-5a-g2";
+                } else if (s.classe === "5B") {
+                    if (s.gruppo === "G1") bgClass = "bg-5b-g1";
+                    if (s.gruppo === "G2") bgClass = "bg-5b-g2";
+                }
+                
+                html += `
+                    <div class="student-row ${bgClass}">
+                        <div class="cell-class">${escapeHtml(infoClasse)}</div>
+                        <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                        <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+                    </div>
+                `;
+            }
+        }
+        container.innerHTML = html;
+        
+        // Aggiungi event listener
+        container.querySelectorAll('.student-row').forEach(row => {
+            const nameCell = row.querySelector('.cell-name');
+            const checkBoxes = row.querySelectorAll('.check-box');
+            
+            if (nameCell) {
+                nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
+            }
+            checkBoxes.forEach(checkBox => {
+                checkBox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    checkBox.classList.toggle('checked');
+                });
+            });
+        });
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, (m) => {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
+</script>
 </body>
 </html>
