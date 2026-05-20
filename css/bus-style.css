@@ -213,7 +213,7 @@ h1 {
     box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
 }
 
-/* ─── STAMPA Semantica e Dinamica ──────────────────────────── */
+/* ─── MEDIA QUERY STAMPA DEDICATA ───────────────────────────── */
 @media print {
     .no-print { display: none !important; }
 
@@ -252,7 +252,7 @@ h1 {
 
     .student-row:nth-child(even) { background: var(--surface-2) !important; }
     
-    /* Mantenimento semantico dei badge dei gruppi anche in stampa */
+    /* Mantenimento semantico dei badge di classe/gruppo in stampa tramite var */
     .bg-5a-g1 { background: var(--accent-dim) !important; }
     .bg-5a-g2 { background: var(--accent-2-dim) !important; }
     .bg-5b-g1 { background: var(--lab-dim) !important; }
