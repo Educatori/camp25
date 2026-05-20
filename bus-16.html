@@ -2,21 +2,20 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>BUS ore 16 — Schema Settimanale Pomeriggio</title>
-    <link rel="stylesheet" href="css/campus-theme.css">
+    <title>POMERIGGIO — SETTIMANALE</title>
+    <link rel="stylesheet" href="css/convitto-theme.css">
     <link rel="stylesheet" href="css/bus-style.css">
 </head>
 <body>
 
 <div class="no-print">
     <button class="btn" onclick="window.print()">STAMPA</button>
-    <button class="btn" id="logoutBtn">LOGOUT</button>
 </div>
 
 <div class="header-main">
     <img src="assets/Logo.png" alt="Logo" class="print-logo">
     <h1>
-        <a href="index.html">Settimanale Pomeriggio — ore 16</a>
+        <a href="index.html">POMERIGGIO — SETTIMANALE</a>
     </h1>
 </div>
 
@@ -57,24 +56,20 @@
 </div>
 
 <script type="module">
-    import { initAuth, getStudenti, getConvittori, logout } from "./js/auth.js";
+    import { initAuth, getStudenti, getConvittori } from "./js/auth.js";
     
-    // Proteggi la pagina
     const user = await initAuth(true, "login.html");
     
     if (user) {
         const tutti = await getStudenti();
-        // Filtra convittori (room valida 101-221)
         let validi = getConvittori(tutti);
         
-        // Esclude 2A, 2B e classi con "P"
         validi = validi.filter(s => {
             const classe = s.classe.toUpperCase();
             const escluse = ["2A", "2B"];
             return !escluse.includes(classe) && !classe.includes("P") && s.cognome;
         });
         
-        // Ordinamento: classe -> gruppo -> cognome
         validi.sort((a, b) => {
             const compClasse = (a.classe || '').localeCompare(b.classe || '', undefined, { numeric: true });
             if (compClasse !== 0) return compClasse;
@@ -85,7 +80,6 @@
             return (a.cognome || '').localeCompare(b.cognome || '');
         });
         
-        // Costruisci lista con separatori tra classi diverse
         const elementiFinali = [];
         let ultimaClasse = null;
         
@@ -97,7 +91,6 @@
             ultimaClasse = studente.classe;
         });
         
-        // Distribuzione in 3 colonne
         const totaleElementi = elementiFinali.length;
         const itemsPerColonna = Math.ceil(totaleElementi / 3);
         
@@ -117,7 +110,7 @@
         if (!container) return;
         
         if (!elementi || elementi.length === 0) {
-            container.innerHTML = '<div class="loading-message">— nessun passeggero —</div>';
+            container.innerHTML = '<div class="loading-message">— nessuno —</div>';
             return;
         }
         
@@ -127,7 +120,7 @@
                 html += `<div class="class-separator"></div>`;
             } else {
                 const s = el.data;
-                const infoClasse = `${s.classe || '—'} ${s.percorso || ''} ${s.gruppo ? '• ' + s.gruppo : ''}`.trim();
+                const infoClasse = `${s.classe || ''} ${s.percorso || ''} ${s.gruppo ? '• ' + s.gruppo : ''}`.trim();
                 
                 let bgClass = "";
                 if (s.classe === "5A") {
@@ -138,11 +131,10 @@
                     if (s.gruppo === "G2") bgClass = "bg-5b-g2";
                 }
                 
-                /* CORRETTO: Sostituito student-row con row-student coerente col CSS */
                 html += `
                     <div class="row-student ${bgClass}">
                         <div class="cell-class">${escapeHtml(infoClasse)}</div>
-                        <div class="cell-name" style="cursor:pointer"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
+                        <div class="cell-name"><b>${escapeHtml(s.cognome || '')}</b> ${escapeHtml(s.nome || '')}</div>
                         <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
                         <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
                         <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
@@ -153,7 +145,6 @@
         }
         container.innerHTML = html;
         
-        // Aggiungi event listener
         container.querySelectorAll('.row-student').forEach(row => {
             const nameCell = row.querySelector('.cell-name');
             const checkBoxes = row.querySelectorAll('.check-box');
@@ -179,8 +170,6 @@
             return m;
         });
     }
-    
-    document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
 </script>
 </body>
 </html>
