@@ -86,7 +86,7 @@
    TEMA DARK — solo mobile (≤768px) quando il sistema
    del telefono è impostato su modalità scura
    ============================================================ */
-@media (max-width: 768px) and (prefers-color-scheme: dark) {
+@media (max-width: 1000000px) and (prefers-color-scheme: dark) {
     :root {
         /* Superfici */
         --bg:           #0f1117;
