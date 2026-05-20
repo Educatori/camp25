@@ -5,155 +5,83 @@
     <title>BUS ore 8 — Trasporto Mattino</title>
     <link rel="stylesheet" href="css/campus-theme.css">
     <link rel="stylesheet" href="css/bus-style.css">
-    <style>
-        body { font-family: system-ui, sans-serif; margin: 20px; background: #f5f7fa; }
-        .grid-wrapper { display: flex; gap: 20px; flex-wrap: wrap; }
-        .macro-column { flex: 1; min-width: 280px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .column-header { display: flex; background: #1e3a5f; color: white; font-weight: bold; }
-        .column-header > div { padding: 12px 8px; flex: 1; }
-        .row-student { display: flex; border-bottom: 1px solid #e2e8f0; }
-        .row-student > div { padding: 10px 8px; flex: 1; }
-        .cell-room { flex: 0.6; font-weight: 600; color: #1e3a5f; }
-        .cell-name { flex: 2; }
-        .cell-class { flex: 0.8; }
-        .cell-check { flex: 0.4; text-align: center; }
-        .cell-notes { flex: 1.2; }
-        .no-print { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 15px; }
-        .btn { padding: 8px 16px; background: #c49a6c; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: 500; }
-        .btn:hover { background: #b8860b; }
-        .header-main { background: white; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .print-logo { width: 45px; height: 45px; background: #c49a6c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; }
-        .loading-message, .error-message { padding: 40px; text-align: center; color: #666; }
-        .error-message { color: #dc2626; background: #fee2e2; }
-        .stats-bar { background: #e0f2fe; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 30px; flex-wrap: wrap; font-size: 0.9rem; }
-        .stats-bar strong { color: #0369a1; }
-        .info-message { padding: 20px; text-align: center; background: #fef3c7; color: #92400e; border-radius: 8px; margin: 20px; }
-    </style>
 </head>
 <body>
 
 <div class="no-print">
-    <button class="btn" onclick="window.print()">🖨️ STAMPA</button>
-    <button class="btn" id="logoutBtn" style="background: #6b7280;">🚪 LOGOUT</button>
+    <button class="btn" onclick="window.print()">STAMPA</button>
+    <button class="btn" id="logoutBtn">LOGOUT</button>
 </div>
 
 <div class="header-main">
-    <div class="print-logo">🚌</div>
-    <h1 style="margin:0; font-size:1.5rem;">BUS Mattino — ore 8:00</h1>
+    <img src="assets/Logo.png" alt="Logo" class="print-logo">
+    <h1>
+        <a href="index.html">Bus Mattino — ore 8</a>
+    </h1>
 </div>
-
-<div id="statsContainer" class="stats-bar" style="display: none;"></div>
 
 <div class="grid-wrapper" id="mainWrapper">
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">ROOM</div>
-            <div class="cell-name">NOME</div>
-            <div class="cell-class">CLASSE</div>
-            <div class="cell-check">✓</div>
-            <div class="cell-notes">NOTE</div>
+            <div class="cell-room">Room</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-class">Classe</div>
+            <div class="cell-check">Presenza</div>
+            <div class="cell-notes">Note</div>
         </div>
         <div id="col0"></div>
     </div>
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">ROOM</div>
-            <div class="cell-name">NOME</div>
-            <div class="cell-class">CLASSE</div>
-            <div class="cell-check">✓</div>
-            <div class="cell-notes">NOTE</div>
+            <div class="cell-room">Room</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-class">Classe</div>
+            <div class="cell-check">Presenza</div>
+            <div class="cell-notes">Note</div>
         </div>
         <div id="col1"></div>
     </div>
     <div class="macro-column">
         <div class="column-header">
-            <div class="cell-room">ROOM</div>
-            <div class="cell-name">NOME</div>
-            <div class="cell-class">CLASSE</div>
-            <div class="cell-check">✓</div>
-            <div class="cell-notes">NOTE</div>
+            <div class="cell-room">Room</div>
+            <div class="cell-name">Nome</div>
+            <div class="cell-class">Classe</div>
+            <div class="cell-check">Presenza</div>
+            <div class="cell-notes">Note</div>
         </div>
         <div id="col2"></div>
     </div>
 </div>
 
 <script type="module">
-    import { initAuth, getStudenti, getStudentiBus8, getStatistiche, logout, CLASSI_BUS8 } from "./js/auth.js";
+    // Solo AGGIUNTA: autenticazione e caricamento dati
+    // La grafica rimane IDENTICA all'originale
     
-    // Attiva protezione login
-    try {
-        const user = await initAuth(true, "login.html");
-        console.log("Utente autenticato:", user?.email);
+    import { initAuth, getStudenti, getStudentiBus8, logout } from "./js/auth.js";
+    
+    // Proteggi la pagina
+    const user = await initAuth(true, "login.html");
+    
+    if (user) {
+        // Carica studenti e filtra bus 8:00 (classe + convittore)
+        const tutti = await getStudenti();
+        const studentiBus8 = getStudentiBus8(tutti);
         
-        if (user) {
-            await caricaLista();
-        }
-    } catch (error) {
-        console.error("Errore autenticazione:", error);
-        document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore autenticazione: ${error.message}</div>`;
-    }
-    
-    async function caricaLista() {
-        try {
-            console.log("Caricamento studenti...");
-            const tutti = await getStudenti();
-            console.log(`Trovati ${tutti.length} studenti totali`);
-            
-            // Mostra statistiche
-            const stats = getStatistiche(tutti);
-            console.log("Statistiche:", stats);
-            
-            const statsContainer = document.getElementById('statsContainer');
-            statsContainer.style.display = 'flex';
-            statsContainer.innerHTML = `
-                <span>📊 <strong>Totale studenti:</strong> ${stats.totale}</span>
-                <span>🏠 <strong>Convittori (room 101-221):</strong> ${stats.convittori}</span>
-                <span>🚌 <strong>Bus 8:00:</strong> ${stats.bus8}</span>
-                <span>📚 <strong>Per classe:</strong> ${Object.entries(stats.perClasse).map(([c, n]) => `${c}:${n}`).join(' · ')}</span>
-            `;
-            
-            // Filtra studenti bus 8:00 (classe + convittore)
-            let studentiBus8 = getStudentiBus8(tutti);
-            console.log(`Studenti bus 8:00: ${studentiBus8.length}`);
-            
-            if (studentiBus8.length === 0) {
-                const infoHtml = `
-                    <div class="info-message">
-                        ⚠️ <strong>Nessuno studente trovato per il bus 8:00</strong><br><br>
-                        Criteri richiesti:<br>
-                        • Classe: ${CLASSI_BUS8.join(', ')}<br>
-                        • Convittore (room valida da 101 a 221, es. "218", non "-")<br><br>
-                        <small>Verifica che gli studenti abbiano una room valida e la classe corretta nel database.</small>
-                    </div>
-                `;
-                document.getElementById('col0').innerHTML = infoHtml;
-                return;
-            }
-            
-            // Ordina per stanza
-            studentiBus8.sort((a, b) => {
-                const stanzaA = parseInt(a.stanza) || 999;
-                const stanzaB = parseInt(b.stanza) || 999;
-                if (stanzaA !== stanzaB) return stanzaA - stanzaB;
-                // Poi per classe
-                if (a.classe !== b.classe) return a.classe.localeCompare(b.classe);
-                // Infine per nome
-                return (a.nomeCompleto || '').localeCompare(b.nomeCompleto || '');
-            });
-            
-            // Distribuisci su 3 colonne
-            const colonne = [[], [], []];
-            studentiBus8.forEach((s, i) => colonne[i % 3].push(s));
-            
-            // Renderizza colonne
-            renderColonna(0, colonne[0]);
-            renderColonna(1, colonne[1]);
-            renderColonna(2, colonne[2]);
-            
-        } catch (error) {
-            console.error("Errore caricamento lista:", error);
-            document.getElementById('col0').innerHTML = `<div class="error-message">❌ Errore: ${error.message}</div>`;
-        }
+        // Ordina per stanza
+        studentiBus8.sort((a, b) => {
+            const stanzaA = parseInt(a.stanza) || 999;
+            const stanzaB = parseInt(b.stanza) || 999;
+            return stanzaA - stanzaB;
+        });
+        
+        // Distribuisci su 3 colonne
+        const colonne = [[], [], []];
+        studentiBus8.forEach((s, i) => colonne[i % 3].push(s));
+        
+        // Renderizza (senza cambiare struttura HTML)
+        renderColonna(0, colonne[0]);
+        renderColonna(1, colonne[1]);
+        renderColonna(2, colonne[2]);
     }
     
     function renderColonna(indice, studenti) {
@@ -173,7 +101,7 @@
                     <div class="cell-name">${escapeHtml(s.nomeCompleto)}</div>
                     <div class="cell-class">${escapeHtml(s.classe)}</div>
                     <div class="cell-check"><input type="checkbox"></div>
-                    <div class="cell-notes"><input type="text" placeholder="Note trasporto"></div>
+                    <div class="cell-notes"><input type="text" placeholder="Note"></div>
                 </div>
             `;
         }
@@ -191,9 +119,7 @@
     }
     
     // Logout
-    document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-        await logout();
-    });
+    document.getElementById("logoutBtn")?.addEventListener("click", () => logout());
 </script>
 </body>
 </html>
