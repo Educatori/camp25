@@ -13,6 +13,7 @@
             min-height: 100vh;
             background: var(--bg);
             padding: 24px;
+            visibility: visible !important; /* Forza visibilità sulla pagina login */
         }
 
         .login-card {
@@ -132,7 +133,24 @@
             font-size: 0.72rem;
             color: var(--text-muted);
         }
-    </style>
+
+        /* Spinner per il caricamento */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+     </style>
 </head>
 <body>
 
@@ -151,7 +169,7 @@
         <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
     </div>
 
-    <button class="btn-login" id="loginBtn" onclick="doLogin()">ACCEDI</button>
+    <button class="btn-login" id="loginBtn">ACCEDI</button>
 
     <div class="error-msg" id="errorMsg"></div>
 
@@ -161,63 +179,74 @@
 </div>
 
 <script type="module">
-    import { initializeApp }                    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
-                                                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { firebaseConfig }                   from "./js/firebase-roomcloud-config.js";
-
-    const app  = initializeApp(firebaseConfig);
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { firebaseConfig } from "./js/firebase-config.js";
+    
+    // Inizializza Firebase
+    const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
-    // Se già autenticato → redirect alla pagina di destinazione o index
+    
+    // Elementi DOM
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loginBtn = document.getElementById("loginBtn");
+    const errorMsg = document.getElementById("errorMsg");
+    
+    // Se già autenticato → redirect
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            const params   = new URLSearchParams(window.location.search);
+            const params = new URLSearchParams(window.location.search);
             const redirect = params.get("redirect") || "index.html";
             window.location.href = redirect;
         }
     });
-
-    // Invio con Enter
-    document.getElementById("password").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") doLogin();
-    });
-    document.getElementById("email").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") document.getElementById("password").focus();
-    });
-
-    window.doLogin = async () => {
-        const email    = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
-        const btn      = document.getElementById("loginBtn");
-        const err      = document.getElementById("errorMsg");
-
+    
+    // Funzione login
+    async function doLogin() {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        
+        errorMsg.classList.remove("visible");
+        errorMsg.textContent = "";
+        
         if (!email || !password) {
-            err.textContent = "Inserisci email e password.";
-            err.classList.add("visible");
+            errorMsg.textContent = "Inserisci email e password.";
+            errorMsg.classList.add("visible");
             return;
         }
-
-        btn.disabled    = true;
-        btn.textContent = "Accesso in corso…";
-        err.classList.remove("visible");
-
+        
+        loginBtn.disabled = true;
+        loginBtn.textContent = "⏳ Accesso in corso...";
+        
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            // onAuthStateChanged gestirà il redirect
+            // Il redirect sarà gestito da onAuthStateChanged
         } catch (e) {
-            btn.disabled    = false;
-            btn.textContent = "ACCEDI";
-            const msgs = {
-                "auth/user-not-found":  "Email non riconosciuta.",
-                "auth/wrong-password":  "Password errata.",
-                "auth/invalid-email":   "Formato email non valido.",
-                "auth/too-many-requests": "Troppi tentativi. Riprova tra qualche minuto.",
+            console.error("Errore login:", e.code);
+            
+            const errorMessages = {
+                "auth/user-not-found": "❌ Email non riconosciuta.",
+                "auth/wrong-password": "❌ Password errata.",
+                "auth/invalid-email": "❌ Formato email non valido.",
+                "auth/too-many-requests": "⚠️ Troppi tentativi. Riprova tra qualche minuto.",
+                "auth/user-disabled": "⚠️ Account disabilitato.",
+                "auth/network-request-failed": "⚠️ Errore di connessione."
             };
-            err.textContent = msgs[e.code] || "Errore di accesso. Riprova.";
-            err.classList.add("visible");
+            
+            errorMsg.textContent = errorMessages[e.code] || `❌ Errore: ${e.message}`;
+            errorMsg.classList.add("visible");
+            loginBtn.disabled = false;
+            loginBtn.textContent = "ACCEDI";
         }
-    };
+    }
+    
+    loginBtn.onclick = doLogin;
+    passwordInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") doLogin();
+    });
+    
+    emailInput.focus();
 </script>
 </body>
 </html>
