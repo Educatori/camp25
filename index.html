@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus — Indice</title>
+<link rel="stylesheet" href="css/campus-theme.css">
+<style>
+/* ─── INDEX-SPECIFIC ─────────────────────────────────────────── */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    background: var(--bg);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79,142,247,0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(56,217,169,0.07), transparent);
+}
+
+/* Header */
+.header-container {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+h1 {
+    font-size: 2rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+}
+
+#todayDate {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-2);
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+}
+
+#digitalClock {
+    font-size: 2.4rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 30px rgba(79,142,247,0.45);
+    margin-bottom: 0;
+}
+
+/* Grid */
+.links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 145px);
+    gap: 18px;
+}
+
+/* Card */
+.link-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    height: 145px;
+    width: 145px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.35s cubic-bezier(.25,.8,.25,1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shimmer effect */
+.link-card::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(120deg, transparent, rgba(79,142,247,0.08), transparent);
+    transform: rotate(25deg);
+    top: -100%;
+    left: -100%;
+    transition: 0.6s;
+}
+
+.link-card:hover::before { top: 100%; left: 100%; }
+
+/* Accent border bottom */
+.link-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.link-card:hover::after { opacity: 1; }
+
+.link-card svg {
+    width: 38px;
+    height: 38px;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    fill: none;
+    transition: all 0.3s;
+    filter: drop-shadow(0 0 8px rgba(79,142,247,0.3));
+}
+
+.link-card span {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+}
+
+.link-card:hover {
+    transform: translateY(-8px) scale(1.04);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-2);
+    background: var(--surface-2);
+}
+
+.link-card:hover svg {
+    stroke: var(--accent-2);
+    filter: drop-shadow(0 0 12px rgba(56,217,169,0.45));
+}
+
+.link-card:hover span { color: var(--text); }
+
+.link-card:active { transform: scale(0.97); }
+
+@media (max-width: 520px) {
+    .links-grid { grid-template-columns: repeat(2, 145px); }
+    h1 { font-size: 1.4rem; }
+    #digitalClock { font-size: 1.8rem; }
+}
+
+/* ─── LIGHT MODE (mobile con sistema chiaro) ────────────────── */
+@media (max-width: 768px) and (prefers-color-scheme: light) {
+    body {
+        background: var(--bg);
+        background-image:
+            radial-gradient(ellipse 80% 50% at 50% -10%, rgba(37,99,235,0.08), transparent),
+            radial-gradient(ellipse 60% 40% at 80% 110%, rgba(13,148,136,0.05), transparent);
+    }
+    h1 {
+        background: linear-gradient(90deg, var(--header-grad-start), var(--header-grad-end));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    #digitalClock { color: var(--accent); text-shadow: 0 0 20px rgba(37,99,235,0.25); }
+    .link-card { background: var(--surface); border-color: var(--border); box-shadow: var(--shadow-sm); }
+    .link-card svg { stroke: var(--accent); filter: none; }
+    .link-card span { color: var(--text-2); }
+    .link-card:hover { background: var(--surface-2); border-color: var(--border-2); box-shadow: var(--shadow); }
+    .link-card:hover svg { stroke: var(--accent-2); filter: none; }
+    .link-card:hover span { color: var(--text); }
+}
+</style>
+</head>
+<body>
+
+<div class="header-container">
+    <h1>Campus - indice</h1>
+    <div id="todayDate">Caricamento...</div>
+    <div id="digitalClock">00:00:00</div>
+</div>
+
+<div class="links-grid">
+
+    <a href="roomcloud.html" class="link-card">
+        <svg viewBox="0 0 24 24"><path d="M17.5 19H9C7 19 4 18 4 14.5C4 11 7 10 7.5 10C8 7 10 5 13 5C16 5 18 7 18.5 10C21 10.5 22 12.5 22 14.5C22 17 20 19 17.5 19Z"/></svg>
+        <span>Cloud</span>
+    </a>
+
+    <a href="cruscotto.html" class="link-card">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/><path d="M7 4l-2 2M19 4l2 2"/></svg>
+        <span>Cruscotto</span>
+    </a>
+
+    <a href="bus-8.html" class="link-card">
+        <svg viewBox="0 0 24 24"><path d="M4 18h16M4 18v-9c0-2 2-4 4-4h8c2 0 4 2 4 4v9M4 18v2M20 18v2"/><path d="M6 9h4M14 9h4M6 13h12"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+        <span>Bus 8</span>
+    </a>
+
+    <a href="transfer.html" class="link-card">
+        <svg viewBox="0 0 24 24"><path d="M7 10h12M15 6l4 4-4 4"/><path d="M17 14H5M9 10l-4 4 4 4"/></svg>
+        <span>Transfer</span>
+    </a>
+
+    <a href="bus-16.html" class="link-card">
+        <svg viewBox="0 0 24 24"><polygon points="6,6 18,6 21,12 18,18 6,18 3,12"/><rect x="7" y="10" width="3" height="3" rx="0.5"/><rect x="15" y="10" width="3" height="3" rx="0.5"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+        <span>Bus 16</span>
+    </a>
+
+    <a href="uscita.html" class="link-card">
+        <svg viewBox="0 0 24 24"><path d="M15 12H3M12 15l3-3-3-3"/><path d="M9 21H17c2 0 3-1 3-3V6c0-2-1-3-3-3H9"/></svg>
+        <span>Uscita</span>
+    </a>
+
+    <a href="rooming.html" class="link-card">
+        <svg viewBox="0 0 24 24"><path d="M3 10L12 3l9 7v11H3V10Z"/><path d="M9 14h6M9 17h4"/></svg>
+        <span>Rooming</span>
+    </a>
+
+    <a href="dinner.html" class="link-card">
+        <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        <span>Dinner</span>
+    </a>
+
+    <a href="dashboard.html" class="link-card">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+        <span>Dashboard</span>
+    </a>
+
+</div>
+
+<script>
+function updateDateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('todayDate').textContent = now.toLocaleDateString('it-IT', options);
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('digitalClock').textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateDateTime, 1000);
+updateDateTime();
+</script>
+</body>
+</html>
