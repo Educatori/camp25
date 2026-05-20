@@ -12,129 +12,128 @@
    ============================================================ */
 :root {
     /* Superfici */
-    --bg:           #f0f4f8;
-    --bg-2:         #ffffff;
-    --bg-3:         #e8eef5;
-    --surface:      #ffffff;
-    --surface-2:    #f0f4f8;
-    --surface-3:    #dde5f0;
-    --border:       rgba(0,0,0,0.08);
-    --border-2:     rgba(0,0,0,0.14);
+    --bg:               #f0f4f8;
+    --bg-2:             #ffffff;
+    --bg-3:             #e8eef5;
+    --surface:          #ffffff;
+    --surface-2:        #f0f4f8;
+    --surface-3:        #dde5f0;
+    --border:           rgba(0,0,0,0.08);
+    --border-2:         rgba(0,0,0,0.14);
 
     /* Accenti principali */
-    --accent:       #2563eb;
-    --accent-dim:   rgba(37,99,235,0.12);
-    --accent-2:     #0d9488;
-    --accent-2-dim: rgba(13,148,136,0.10);
+    --accent:           #2563eb;
+    --accent-dim:       rgba(37,99,235,0.12);
+    --accent-2:         #0d9488;
+    --accent-2-dim:     rgba(13,148,136,0.10);
 
     /* Stati operativi */
-    --ok:           #16a34a;
-    --ok-dim:       rgba(22,163,74,0.10);
-    --absent:       #dc2626;
-    --absent-dim:   rgba(220,38,38,0.10);
-    --dinner-no:    #2563eb;
-    --dinner-no-dim:rgba(37,99,235,0.10);
-    --lab:          #d97706;
-    --lab-dim:      rgba(217,119,6,0.10);
-    --switched:     #0d9488;
-    --pp:           #ea580c;
+    --ok:               #16a34a;
+    --ok-dim:           rgba(22,163,74,0.10);
+    --absent:           #dc2626;
+    --absent-dim:       rgba(220,38,38,0.10);
+    --dinner-no:        #2563eb;
+    --dinner-no-dim:    rgba(37,99,235,0.10);
+    --lab:              #d97706;
+    --lab-dim:          rgba(217,119,6,0.10);
+    --switched:         #0d9488;
+    --pp:               #ea580c;
 
     /* Bottoni toolbar */
-    --btn-t1:        #16a34a;
-    --btn-t2:        #2563eb;
-    --btn-t3:        #7c3aed;
-    --btn-t4:        #475569;
-    --btn-reset:     #ea580c;
-    --btn-reset-full:#b91c1c;
-    --btn-inactive:  #e8eef5;
+    --btn-t1:            #16a34a;
+    --btn-t2:            #2563eb;
+    --btn-t3:            #7c3aed;
+    --btn-t4:            #475569;
+    --btn-reset:         #ea580c;
+    --btn-reset-full:    #b91c1c;
+    --btn-inactive:      #e8eef5;
 
     /* Testo */
-    --text:         #0f172a;
-    --text-2:       #475569;
-    --text-muted:   #94a3b8;
-    --text-inv:     #ffffff;
+    --text:             #0f172a;
+    --text-2:           #475569;
+    --text-muted:       #94a3b8;
+    --text-inv:         #ffffff;
 
     /* Tipografia */
-    --font:         'DM Sans', 'Segoe UI', system-ui, sans-serif;
-    --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+    --font:             'DM Sans', 'Segoe UI', system-ui, sans-serif;
+    --font-mono:        'JetBrains Mono', 'Courier New', monospace;
 
     /* Geometria */
-    --radius-sm:    6px;
-    --radius:       12px;
-    --radius-lg:    18px;
-    --radius-xl:    24px;
+    --radius-sm:        6px;
+    --radius:           12px;
+    --radius-lg:        18px;
+    --radius-xl:        24px;
 
     /* Ombre */
-    --shadow-sm:    0 1px 4px rgba(0,0,0,0.10);
-    --shadow:       0 4px 16px rgba(0,0,0,0.12);
-    --shadow-lg:    0 8px 32px rgba(0,0,0,0.15);
+    --shadow-sm:        0 1px 4px rgba(0,0,0,0.10);
+    --shadow:           0 4px 16px rgba(0,0,0,0.12);
+    --shadow-lg:        0 8px 32px rgba(0,0,0,0.15);
 
     /* Transizioni */
-    --t:            0.2s ease;
+    --t:                0.2s ease;
 
     /* Colori header gradient */
     --header-grad-start: #2563eb;
     --header-grad-end:   #0d9488;
 
     /* Colori stampa (sempre light) */
-    --print-bg:     #ffffff;
-    --print-text:   #000000;
-    --print-header: #1a2236;
+    --print-bg:         #ffffff;
+    --print-text:       #000000;
+    --print-header:     #1a2236;
 }
 
 /* ============================================================
-   TEMA DARK — solo mobile (≤768px) quando il sistema
-   del telefono è impostato su modalità scura
+   TEMA DARK — attivazione automatica esclusiva su Mobile
    ============================================================ */
-@media (max-width: 1000000px) and (prefers-color-scheme: dark) {
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
     :root {
         /* Superfici */
-        --bg:           #0f1117;
-        --bg-2:         #161b27;
-        --bg-3:         #1e2535;
-        --surface:      #1e2535;
-        --surface-2:    #252d40;
-        --surface-3:    #2d3650;
-        --border:       rgba(255,255,255,0.07);
-        --border-2:     rgba(255,255,255,0.13);
+        --bg:               #0f1117;
+        --bg-2:             #161b27;
+        --bg-3:             #1e2535;
+        --surface:          #1e2535;
+        --surface-2:        #252d40;
+        --surface-3:        #2d3650;
+        --border:           rgba(255,255,255,0.07);
+        --border-2:         rgba(255,255,255,0.13);
 
         /* Accenti principali */
-        --accent:       #4f8ef7;
-        --accent-dim:   rgba(79,142,247,0.15);
-        --accent-2:     #38d9a9;
-        --accent-2-dim: rgba(56,217,169,0.12);
+        --accent:           #4f8ef7;
+        --accent-dim:       rgba(79,142,247,0.15);
+        --accent-2:         #38d9a9;
+        --accent-2-dim:     rgba(56,217,169,0.12);
 
         /* Stati operativi */
-        --ok:           #2ecc71;
-        --ok-dim:       rgba(46,204,113,0.13);
-        --absent:       #e74c3c;
-        --absent-dim:   rgba(231,76,60,0.13);
-        --dinner-no:    #3498db;
-        --dinner-no-dim:rgba(52,152,219,0.13);
-        --lab:          #f39c12;
-        --lab-dim:      rgba(243,156,18,0.13);
-        --switched:     #38d9a9;
-        --pp:           #e67e22;
+        --ok:               #2ecc71;
+        --ok-dim:           rgba(46,204,113,0.13);
+        --absent:           #e74c3c;
+        --absent-dim:       rgba(231,76,60,0.13);
+        --dinner-no:        #3498db;
+        --dinner-no-dim:    rgba(52,152,219,0.13);
+        --lab:              #f39c12;
+        --lab-dim:          rgba(243,156,18,0.13);
+        --switched:         #38d9a9;
+        --pp:               #e67e22;
 
         /* Bottoni toolbar */
-        --btn-t1:        #27ae60;
-        --btn-t2:        #2980b9;
-        --btn-t3:        #8e44ad;
-        --btn-t4:        #546e7a;
-        --btn-reset:     #e67e22;
-        --btn-reset-full:#c0392b;
-        --btn-inactive:  #252d40;
+        --btn-t1:            #27ae60;
+        --btn-t2:            #2980b9;
+        --btn-t3:            #8e44ad;
+        --btn-t4:            #546e7a;
+        --btn-reset:         #e67e22;
+        --btn-reset-full:    #c0392b;
+        --btn-inactive:      #252d40;
 
         /* Testo */
-        --text:         #e8ecf4;
-        --text-2:       #a0aec0;
-        --text-muted:   #64748b;
-        --text-inv:     #0f1117;
+        --text:             #e8ecf4;
+        --text-2:           #a0aec0;
+        --text-muted:       #64748b;
+        --text-inv:         #0f1117;
 
         /* Ombre */
-        --shadow-sm:    0 2px 8px rgba(0,0,0,0.35);
-        --shadow:       0 4px 20px rgba(0,0,0,0.45);
-        --shadow-lg:    0 8px 40px rgba(0,0,0,0.55);
+        --shadow-sm:        0 2px 8px rgba(0,0,0,0.35);
+        --shadow:           0 4px 20px rgba(0,0,0,0.45);
+        --shadow-lg:        0 8px 40px rgba(0,0,0,0.55);
 
         /* Gradient header */
         --header-grad-start: #4f8ef7;
@@ -559,7 +558,7 @@ a { color: inherit; text-decoration: none; }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── RESPONSIVE ────────────────────────────────────────────── */
+/* ─── RESPONSIVE & LAYOUT MOBILE ────────────────────────────── */
 @media (max-width: 768px) {
     .container { padding: 14px; }
     .app-header { padding: 10px 16px; }
@@ -567,7 +566,12 @@ a { color: inherit; text-decoration: none; }
     .toolbar { gap: 8px; }
 }
 
-/* ─── PRINT BASE ────────────────────────────────────────────── */
+/* ─── LOGO SPAZIO ───────────────────────────────────────────── */
+.print-logo {
+    display: none;
+}
+
+/* ─── GESTIONE STAMPA ───────────────────────────────────────── */
 @media print {
     .no-print,
     .print-bar { display: none !important; }
@@ -577,13 +581,7 @@ a { color: inherit; text-decoration: none; }
         color: black !important;
     }
 
-    /* Logo spazio in stampa */
     .print-logo {
         display: block !important;
     }
-}
-
-/* Logo spazio — nascosto su schermo, visibile in stampa */
-.print-logo {
-    display: none;
 }
