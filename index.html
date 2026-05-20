@@ -145,21 +145,6 @@ h1 {
 .card-dinner     { --card-color:#16a34a; --card-dim:rgba(22,163,74,0.08);   --card-dim-hover:rgba(22,163,74,0.15);  }
 .card-dashboard  { --card-color:#475569; --card-dim:rgba(71,85,105,0.08);   --card-dim-hover:rgba(71,85,105,0.15);  }
 
-/* ─── DARK MODE mobile ───────────────────────────────────────── */
-@media (max-width: 768px) and (prefers-color-scheme: dark) {
-    .link-card {
-        background: var(--surface);
-        border-color: var(--border);
-        box-shadow: var(--shadow-sm);
-    }
-    .link-card:hover {
-        background: var(--surface-2);
-        box-shadow: var(--shadow);
-    }
-    .card-label { color: var(--text-2); }
-    #digitalClock { color: var(--accent); background: var(--accent-dim); }
-}
-
 /* ─── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width: 480px) {
     .links-grid  { gap: 10px; max-width: 360px; }
@@ -185,7 +170,7 @@ h1 {
 
 <div class="links-grid">
 
-    <a href="roomcloud.html" class="link-card card-cloud">
+    <a href="cloud.html" class="link-card card-cloud">
         <div class="card-icon">
             <svg viewBox="0 0 24 24"><path d="M17.5 19H9C7 19 4 18 4 14.5C4 11 7 10 7.5 10C8 7 10 5 13 5C16 5 18 7 18.5 10C21 10.5 22 12.5 22 14.5C22 17 20 19 17.5 19Z"/></svg>
         </div>
