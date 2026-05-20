@@ -145,34 +145,46 @@ h1 {
     font-size: 8px;
     color: var(--ok);
 }
-/* ─── BOTTONI TOOLBAR INTERFACCIA ──────────────────────────── */
 .no-print { 
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin: 12px 0; 
+    gap: 12px;
+    margin: 16px 0; 
 }
 
 .btn {
-    padding: 8px 24px;
-    background: linear-gradient(90deg, var(--accent), var(--switched, var(--accent-2)));
-    color: var(--text-inv);
+    padding: 10px 24px;
+    /* Usa l'accento del brand e una sfumatura pulita verso il secondo accento */
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: var(--text-inv); /* Corretto il rimando alla variabile del testo chiaro */
     border: none;
     cursor: pointer;
     border-radius: var(--radius-xl);
     font-weight: 700;
     font-family: var(--font, sans-serif);
     font-size: 11px;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     transition: all var(--t, 0.2s);
     box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Distinguiamo il bottone di LOGOUT per farlo saltare all'occhio usando il rosso del campus */
+#logoutBtn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
 }
 
 .btn:hover {
-    filter: brightness(1.15);
+    filter: brightness(1.12);
     transform: translateY(-1px);
     box-shadow: var(--shadow);
+}
+
+.btn:active {
+    transform: translateY(0);
 }
 /* Stampa specifica per bus (A4 landscape) */
 @media print {
