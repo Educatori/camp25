@@ -1,167 +1,65 @@
 /* ============================================================
    AUTH.JS — Autenticazione condivisa per tutto il sito
    Convitto 2025
+   
+   USO: aggiungere in ogni pagina protetta:
+     <script type="module" src="js/auth.js"></script>
+   
+   La pagina viene nascosta finché Firebase non conferma
+   che l'utente è autenticato. Se non lo è, redirect a login.html.
    ============================================================ */
 
-import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get }   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { firebaseConfig }          from "./firebase-roomcloud-config.js";
 
-// ── Inizializza ────────────
+// ── Inizializza (usa la stessa app se già avviata) ────────────
 let app;
 try {
     app = initializeApp(firebaseConfig);
 } catch (e) {
+    // App già inizializzata in un altro modulo — la recuperiamo
+    const { getApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
     app = getApp();
 }
 
 export const auth = getAuth(app);
-export const db = getDatabase(app);
+export const db   = getDatabase(app);
 
 // ── Nasconde il body finché non c'è conferma auth ────────────
-if (!window.location.pathname.includes("login.html")) {
-    document.body.style.visibility = "hidden";
-}
+document.body.style.visibility = "hidden";
 
 // ── Controlla autenticazione ─────────────────────────────────
-export function initAuth(redirectOnUnauth = true, redirectUrl = "login.html") {
-    return new Promise((resolve) => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                if (!window.location.pathname.includes("login.html")) {
-                    document.body.style.visibility = "visible";
-                }
-                window._currentUser = user;
-                document.dispatchEvent(new CustomEvent("authReady", { detail: { user } }));
-                resolve(user);
-            } else {
-                if (redirectOnUnauth && !window.location.pathname.includes("login.html")) {
-                    const current = encodeURIComponent(window.location.pathname.split("/").pop() || "index.html");
-                    window.location.href = `${redirectUrl}?redirect=${current}`;
-                } else {
-                    if (!window.location.pathname.includes("login.html")) {
-                        document.body.style.visibility = "visible";
-                    }
-                    resolve(null);
-                }
-            }
-        });
-    });
-}
-
-// ── Helper: logout ──────────────────────────────────────────
-export async function logout() {
-    await signOut(auth);
-    window.location.href = "login.html";
-}
-
-// ── Helper: carica studenti dal DB (array) ───────────────────
-let _cachedStudenti = null;
-
-export async function getStudenti() {
-    if (_cachedStudenti) return _cachedStudenti;
-    
-    console.log("Caricamento studenti da Firebase...");
-    const snap = await get(ref(db, "studenti"));
-    
-    if (!snap.exists()) {
-        console.warn("Nessuno studente trovato nel database");
-        return [];
-    }
-    
-    const studentiData = snap.val();
-    let studentiList = [];
-    
-    if (Array.isArray(studentiData)) {
-        studentiList = studentiData.map((s, index) => ({
-            id: s.id || index,
-            nome: s.nome || "",
-            cognome: s.cognome || "",
-            nomeCompleto: `${s.nome || ""} ${s.cognome || ""}`.trim(),
-            stanza: s.room || s.stanza || "",
-            classe: s.classe || "",
-            busMattina8: s.busMattina8 === true,
-            note: s.note || ""
-        }));
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.body.style.visibility = "visible";
+        // Espone l'utente globalmente per gli script che ne hanno bisogno
+        window._currentUser = user;
+        // Dispatcha evento custom così gli script possono reagire
+        document.dispatchEvent(new CustomEvent("authReady", { detail: { user } }));
     } else {
-        for (let id in studentiData) {
-            const s = studentiData[id];
-            studentiList.push({
-                id: id,
-                nome: s.nome || "",
-                cognome: s.cognome || "",
-                nomeCompleto: `${s.nome || ""} ${s.cognome || ""}`.trim(),
-                stanza: s.room || s.stanza || "",
-                classe: s.classe || "",
-                busMattina8: s.busMattina8 === true,
-                note: s.note || ""
-            });
-        }
+        // Non autenticato → redirect al login
+        const current = encodeURIComponent(window.location.pathname.split("/").pop());
+        window.location.href = `login.html?redirect=${current}`;
     }
-    
-    console.log(`Caricati ${studentiList.length} studenti`);
-    _cachedStudenti = studentiList;
-    return studentiList;
+});
+
+// ── Helper: carica i dati dal DB una volta sola ───────────────
+let _cachedData = null;
+
+export async function getConvittoData() {
+    if (_cachedData) return _cachedData;
+    const snap = await get(ref(db, "convitto-data"));
+    if (!snap.exists()) throw new Error("Dati non trovati su Firebase");
+    _cachedData = snap.val();
+    return _cachedData;
 }
 
-// ── Helper: verifica se uno studente è convittore (ha stanza valida) ──
-export function isConvittore(studente) {
-    const stanza = studente.stanza;
-    if (!stanza || stanza === "-") return false;
-    const n = parseInt(stanza, 10);
-    return !isNaN(n) && n >= 101 && n <= 221;
-}
-
-// ── Helper: classi che usano il bus 8:00 ─────────────────────
-const CLASSI_BUS8 = ["1A", "1B", "3A", "3B", "3C", "4A", "4B", "5A"];
-
-export function isClasseBus8(classe) {
-    return CLASSI_BUS8.includes(classe);
-}
-
-// ── Helper: filtra studenti bus 8:00 (in base a classe + convittore) ──
-export function getStudentiBus8(tuttiStudenti) {
-    if (!tuttiStudenti) return [];
-    
-    return tuttiStudenti.filter(s => {
-        // Deve essere convittore (avere stanza valida)
-        const èConvittore = isConvittore(s);
-        // Deve essere in una delle classi che usano il bus
-        const èClasseBus8 = isClasseBus8(s.classe);
-        
-        return èConvittore && èClasseBus8;
-    });
-}
-
-// ── Helper: filtra convittori (tutti quelli con stanza 101-221) ──
+// ── Helper: filtra convittori (room 101-221) ──────────────────
 export function getConvittori(tuttiStudenti) {
-    if (!tuttiStudenti) return [];
-    return tuttiStudenti.filter(s => isConvittore(s));
-}
-
-// ── Helper: invalida cache ───────────────────────────────────
-export function invalidateCache() {
-    _cachedStudenti = null;
-    console.log("Cache invalidata");
-}
-
-// ── Helper: ottieni statistiche (utile per debug) ────────────
-export function getStatistiche(tuttiStudenti) {
-    if (!tuttiStudenti) return { totale: 0, convittori: 0, bus8: 0, perClasse: {} };
-    
-    const convittori = getConvittori(tuttiStudenti);
-    const bus8 = getStudentiBus8(tuttiStudenti);
-    
-    const perClasse = {};
-    CLASSI_BUS8.forEach(classe => {
-        perClasse[classe] = convittori.filter(s => s.classe === classe).length;
+    return tuttiStudenti.filter(s => {
+        const n = parseInt(s.room, 10);
+        return !isNaN(n) && n >= 101 && n <= 221;
     });
-    
-    return {
-        totale: tuttiStudenti.length,
-        convittori: convittori.length,
-        bus8: bus8.length,
-        perClasse: perClasse
-    };
 }
