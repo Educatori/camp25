@@ -24,8 +24,8 @@
         <div class="column-header">
             <div class="cell-room">Room</div>
             <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
+            <div class="cell-class">C </div>
+            <div class="cell-check">P </div>
             <div class="cell-notes">Note</div>
         </div>
         <div id="col0"></div>
@@ -34,8 +34,8 @@
         <div class="column-header">
             <div class="cell-room">Room</div>
             <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
+            <div class="cell-class"> C </div>
+            <div class="cell-check"> P </div>
             <div class="cell-notes">Note</div>
         </div>
         <div id="col1"></div>
@@ -44,8 +44,8 @@
         <div class="column-header">
             <div class="cell-room">Room</div>
             <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
+            <div class="cell-class">C </div>
+            <div class="cell-check">P </div>
             <div class="cell-notes">Note</div>
         </div>
         <div id="col2"></div>
@@ -107,29 +107,43 @@
                     continue;
                 }
                 
-                container.innerHTML = studentsByColumn[i].map(student => {
-    // Recupera gli stati salvati per impostare le classi corrette al caricamento
-    const isChecked = localStorage.getItem(`bus_presence_${student.id}`) === 'true';
-    const savedNote = localStorage.getItem(`bus_note_${student.id}`) || '';
-    
-    // Uniamo la classe con l'emoji del percorso (es: "4B 🍷")
-    const classeEPercorso = `${student.classe || '-'} ${student.percorso || ''}`.trim();
+                container.innerHTML = studentsByColumn[i].map((student, index) => {
+                    // Log di debug opzionale per il primo elemento di ogni colonna se servisse ispezionare
+                    if (index === 0) console.log("Dati studente:", student);
 
-    return `
-        <div class="student-row" data-student-id="${student.id}">
-                       <div class="cell-room">${student.room || '-'}</div>
-            <div class="cell-name">${student.nomeCompleto || `${student.nome} ${student.cognome}`}</div>
- 
-            <div class="cell-class">${classeEPercorso}</div>
-            <div class="cell-check">
-                <div class="check-box ${isChecked ? 'checked' : ''}" data-id="${student.id}"></div>
-            </div>
-            <div class="cell-notes">
-                <input type="text" class="bus-note-field" value="${savedNote}" placeholder="..." data-id="${student.id}">
-                <div class="line-notes-print">${savedNote}</div>
-            </div>
-        </div>
-        `;
+                    // Recupera gli stati salvati per impostare le classi corrette al caricamento
+                    const isChecked = localStorage.getItem(`bus_presence_${student.id}`) === 'true';
+                    const savedNote = localStorage.getItem(`bus_note_${student.id}`) || '';
+                    
+                    // Uniamo la classe con l'emoji del percorso (es: "4B 🍷")
+                    const classeEPercorso = `${student.classe || '-'} ${student.percorso || ''}`.trim();
+
+                    // Gestione sicura della stanza (controlla sia room che stanza, rimuove eventuali spazi)
+                    const camera = String(student.room || student.stanza || '-').trim();
+
+                    // Formatta il nome per mostrare prima il COGNOME e poi il NOME
+                    let nomeVisualizzato = '';
+                    if (student.cognome && student.nome) {
+                        nomeVisualizzato = `${student.cognome.toUpperCase()} ${student.nome}`;
+                    } else {
+                        // Fallback se nel DB c'è solo la stringa pre-unita 'nomeCompleto'
+                        nomeVisualizzato = student.nomeCompleto || `${student.nome || ''} ${student.cognome || ''}`.trim();
+                    }
+
+                    return `
+                        <div class="student-row" data-student-id="${student.id}">
+                            <div class="cell-room">${camera}</div>
+                            <div class="cell-name">${nomeVisualizzato}</div>
+                            <div class="cell-class">${classeEPercorso}</div>
+                            <div class="cell-check">
+                                <div class="check-box ${isChecked ? 'checked' : ''}" data-id="${student.id}"></div>
+                            </div>
+                            <div class="cell-notes">
+                                <input type="text" class="bus-note-field" value="${savedNote}" placeholder="..." data-id="${student.id}">
+                                <div class="line-notes-print">${savedNote}</div>
+                            </div>
+                        </div>
+                    `;
                 }).join('');
             }
             
@@ -148,30 +162,31 @@
     }
     
     // Attacca event listeners per salvare dati in localStorage
-   function attachEventListeners() {
-    // Gestione dei finti checkbox con i click
-    document.querySelectorAll('.check-box').forEach(checkbox => {
-        checkbox.addEventListener('click', (e) => {
-            const studentId = e.currentTarget.dataset.id;
-            const isChecked = e.currentTarget.classList.toggle('checked');
-            localStorage.setItem(`bus_presence_${studentId}`, isChecked);
+    function attachEventListeners() {
+        // Gestione dei finti checkbox con i click
+        document.querySelectorAll('.check-box').forEach(checkbox => {
+            checkbox.addEventListener('click', (e) => {
+                const studentId = e.currentTarget.dataset.id;
+                const isChecked = e.currentTarget.classList.toggle('checked');
+                localStorage.setItem(`bus_presence_${studentId}`, isChecked);
+            });
         });
-    });
-    
-    // Gestione dei campi di testo per le note
-    document.querySelectorAll('.bus-note-field').forEach(input => {
-        input.addEventListener('input', (e) => {
-            const studentId = e.target.dataset.id;
-            localStorage.setItem(`bus_note_${studentId}`, e.target.value);
-            // Aggiorna lo specchietto per la stampa
-            const printMirror = e.target.nextElementSibling;
-            if (printMirror) printMirror.textContent = e.target.value;
+        
+        // Gestione dei campi di testo per le note
+        document.querySelectorAll('.bus-note-field').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const studentId = e.target.dataset.id;
+                localStorage.setItem(`bus_note_${studentId}`, e.target.value);
+                // Aggiorna lo specchietto per la stampa
+                const printMirror = e.target.nextElementSibling;
+                if (printMirror) printMirror.textContent = e.target.value;
+            });
         });
-    });
-}
+    }
     
     // Avvia l'applicazione
     loadBusStudents().catch(console.error);
 </script>
+
 </body>
 </html>
