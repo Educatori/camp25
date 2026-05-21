@@ -156,23 +156,23 @@
     body {
         background: white !important;
         color: black !important;
-        font-size: 8px !important;
+        font-size: 10px !important;
     }
 
     .header-main {
-        margin-bottom: 6px;
-        padding: 2px 0;
+        margin-bottom: 10px;
+        padding: 4px 0;
     }
 
     .header-main h1 {
-        font-size: 12px !important;
+        font-size: 15px !important;
         align-items: center;
     }
 
     .student-row { 
         border-color: #ddd !important; 
         background: white !important; 
-        height: 18px !important; /* Compressione estrema per la stampa fisica */
+        height: 20px !important; /* Compressione estrema per la stampa fisica */
         padding: 0px 3px !important;
     }
     
@@ -183,11 +183,11 @@
     .cell-room { 
         color: black !important; 
         border-right-color: #ddd !important;
-        font-size: 7.5px !important;
+        font-size: 10px !important;
     }
     
     .cell-name {
-        font-size: 8px !important;
+        font-size: 10px !important;
         color: black !important;
     }
 
