@@ -5,8 +5,8 @@
 .header-main {
     text-align: center;
     border-bottom: 2px solid var(--border-2);
-    margin-bottom: 8px; /* Ridotto */
-    padding: 4px 0 6px; /* Ridotto */
+    margin-bottom: 10px; /* Ridotto */
+    padding: 6px 0 8px; /* Ridotto */
     position: relative;
 }
 
@@ -22,20 +22,21 @@
     background: var(--bg-2);
     color: var(--text-2);
     font-weight: 700;
-    padding: 3px 4px; /* Ridotto padding verticale */
+    padding: 5px 6px; /* Ridotto padding verticale */
     border-radius: 4px 4px 0 0;
-    font-size: 8px;
+    font-size: 10px;
     margin-bottom: 1px;
     text-transform: uppercase;
     border: 1px solid var(--border);
     border-bottom: none;
+    align-items: center;
 }
 
 /* Righe degli studenti estremamente sottili */
 .student-row {
     display: flex;
     align-items: center;
-    padding: 1.5px 4px; /* Compressione verticale massima */
+    padding: 2px 4px; /* Compressione verticale massima */
     margin-bottom: 1px;
     border: 0.5px solid var(--border);
     border-radius: 2px;
@@ -49,10 +50,10 @@
 
 /* Celle interne riscalate */
 .cell-room {
-    width: 24px; /* Ridotto */
+    width: 28px; /* Ridotto */
     font-weight: 700;
     font-family: var(--font-mono);
-    font-size: 8px; /* Ridotto */
+    font-size: 10px; /* Ridotto */
     color: var(--accent);
     border-right: 1px solid var(--border);
     flex-shrink: 0;
@@ -60,20 +61,20 @@
 .cell-name {
     flex-grow: 1;
     padding-left: 4px;
-    font-size: 8.5px; /* Ridotto per evitare overflow di nomi lunghi */
+    font-size: 9px; /* Ridotto per evitare overflow di nomi lunghi */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 .cell-class {
-    width: 32px; /* Ridotto da 48px */
+    width: 35px; /* Ridotto da 48px */
     text-align: center;
     font-size: 7.5px;
     color: var(--text-muted);
     flex-shrink: 0;
 }
 .cell-check {
-    width: 30px; /* Ridotto da 38px */
+    width: 32px; /* Ridotto da 38px */
     text-align: center;
     flex-shrink: 0;
     display: flex;
@@ -165,12 +166,13 @@
 
     .header-main h1 {
         font-size: 12px !important;
+        align-items: center;
     }
 
     .student-row { 
         border-color: #ddd !important; 
         background: white !important; 
-        height: 14px !important; /* Compressione estrema per la stampa fisica */
+        height: 18px !important; /* Compressione estrema per la stampa fisica */
         padding: 0px 3px !important;
     }
     
