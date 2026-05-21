@@ -67,9 +67,9 @@
     text-overflow: ellipsis;
 }
 .cell-class {
-    width: 35px; /* Ridotto da 48px */
+    width: 45px; /* Ridotto da 48px */
     text-align: center;
-    font-size: 7.5px;
+    font-size: 8px;
     color: var(--text-muted);
     flex-shrink: 0;
 }
@@ -189,6 +189,12 @@
     .cell-name {
         font-size: 10px !important;
         color: black !important;
+    }
+    
+    .cell-class {
+        width: 45px !important;
+        color: black !important;
+        font-size: 8px !important;
     }
 
     /* Nasconde l'input testuale nativo in stampa e mostra il div riga */
