@@ -112,11 +112,14 @@
     const isChecked = localStorage.getItem(`bus_presence_${student.id}`) === 'true';
     const savedNote = localStorage.getItem(`bus_note_${student.id}`) || '';
     
+    // Uniamo la classe con l'emoji del percorso (es: "4B 🍷")
+    const classeEPercorso = `${student.classe || '-'} ${student.percorso || ''}`.trim();
+
     return `
         <div class="student-row" data-student-id="${student.id}">
-            <div class="cell-room">${student.stanza || '-'}</div>
-            <div class="cell-name">${student.nomeCompleto || `${student.nome} ${student.cognome}`}</div>
-            <div class="cell-class">${student.classe || '-'}</div>
+            <div class="cell-room">${student.room || '-'}</div>
+            <div class="cell-name">${student.nomeCompleto || `${student.cognome} ${student.nome}`}</div>
+            <div class="cell-class">${classeEPercorso}</div>
             <div class="cell-check">
                 <div class="check-box ${isChecked ? 'checked' : ''}" data-id="${student.id}"></div>
             </div>
@@ -125,8 +128,8 @@
                 <div class="line-notes-print">${savedNote}</div>
             </div>
         </div>
-    `;
-}).join('');
+        `;
+                }).join('');
             }
             
             // Aggiungi event listeners per salvare le presenze localmente
