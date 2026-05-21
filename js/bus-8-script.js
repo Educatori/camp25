@@ -52,7 +52,8 @@ function generaGrigliaBus() {
         row.className = `student-row ${bgClass}`;
         row.innerHTML = `
             <div class="cell-room">${s.room}</div>
-            <div class="cell-name" style="cursor:pointer"><b>${s.cognome}</b> ${s.nome}</div>
+            <div class="cell-name"><b>${s.cognome}</b> ${s.nome}</div>
+            
             <div class="cell-class">${infoClasse}</div>
             <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
             <div class="cell-notes"><div class="line-notes"></div></div>
@@ -65,7 +66,6 @@ function generaGrigliaBus() {
         nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
         
         checkBox.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evita che il click sulla checkbox attivi anche il "barrato" sulla riga
             checkBox.classList.toggle('checked');
         });
 
