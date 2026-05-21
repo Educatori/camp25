@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -189,20 +190,7 @@
         }
     };
     
-    // Esporta i dati in formato CSV
-    window.exportBusData = function() {
-        const rows = [];
-        rows.push(['Stanza', 'Nome', 'Classe', 'Presente', 'Note']);
-        
-        document.querySelectorAll('.student-row').forEach(row => {
-            const room = row.querySelector('.cell-room')?.innerText || '';
-            const name = row.querySelector('.cell-name')?.innerText || '';
-            const classe = row.querySelector('.cell-class')?.innerText || '';
-            const present = row.querySelector('.presence-check')?.checked ? 'Sì' : 'No';
-            const note = row.querySelector('.note-input')?.value || '';
-            
-            rows.push([room, name, classe, present, note]);
-        });
+   
         
         const csvContent = rows.map(row => row.join(',')).join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -216,58 +204,9 @@
         URL.revokeObjectURL(url);
     };
     
-    // Aggiungi bottoni di controllo se non esistono
-    function addControlButtons() {
-        const printDiv = document.querySelector('.no-print');
-        if (printDiv && !document.getElementById('exportBusBtn')) {
-            const exportBtn = document.createElement('button');
-            exportBtn.id = 'exportBusBtn';
-            exportBtn.className = 'btn';
-            exportBtn.innerHTML = '📊 ESPORTA CSV';
-            exportBtn.onclick = window.exportBusData;
-            exportBtn.style.marginLeft = '10px';
-            
-            const clearBtn = document.createElement('button');
-            clearBtn.id = 'clearBusBtn';
-            clearBtn.className = 'btn btn-danger';
-            clearBtn.innerHTML = '🗑️ RESET DATI';
-            clearBtn.onclick = window.clearBusData;
-            clearBtn.style.marginLeft = '10px';
-            
-            const refreshBtn = document.createElement('button');
-            refreshBtn.id = 'refreshBusBtn';
-            refreshBtn.className = 'btn';
-            refreshBtn.innerHTML = '🔄 RICARICA';
-            refreshBtn.onclick = () => location.reload();
-            refreshBtn.style.marginLeft = '10px';
-            
-            printDiv.appendChild(exportBtn);
-            printDiv.appendChild(clearBtn);
-            printDiv.appendChild(refreshBtn);
-        }
-    }
     
-    // Logout function
-    window.logoutUser = async function() {
-        if (confirm('Sei sicuro di voler uscire?')) {
-            await logout();
-        }
-    };
-    
-    // Aggiungi pulsante logout se non esiste
-    function addLogoutButton() {
-        const header = document.querySelector('.header-main');
-        if (header && !document.getElementById('logoutBtn')) {
-            const logoutBtn = document.createElement('button');
-            logoutBtn.id = 'logoutBtn';
-            logoutBtn.className = 'btn btn-logout';
-            logoutBtn.innerHTML = '🚪 LOGOUT';
-            logoutBtn.onclick = window.logoutUser;
-            logoutBtn.style.float = 'right';
-            logoutBtn.style.marginTop = '10px';
-            header.appendChild(logoutBtn);
-        }
-    }
+  
+  
     
     // Inizializza la pagina
     async function init() {
