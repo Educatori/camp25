@@ -107,19 +107,26 @@
                     continue;
                 }
                 
-                container.innerHTML = studentsByColumn[i].map(student => `
-                    <div class="student-row" data-student-id="${student.id}">
-                        <div class="cell-room">${student.stanza || '-'}</div>
-                        <div class="cell-name">${student.nomeCompleto || `${student.nome} ${student.cognome}`}</div>
-                        <div class="cell-class">${student.classe || '-'}</div>
-                        <div class="cell-check">
-                            <input type="checkbox" class="presence-check" data-id="${student.id}" data-name="${student.nomeCompleto}">
-                        </div>
-                        <div class="cell-notes">
-                            <input type="text" class="note-input" placeholder="Note..." data-id="${student.id}">
-                        </div>
-                    </div>
-                `).join('');
+                container.innerHTML = studentsByColumn[i].map(student => {
+    // Recupera gli stati salvati per impostare le classi corrette al caricamento
+    const isChecked = localStorage.getItem(`bus_presence_${student.id}`) === 'true';
+    const savedNote = localStorage.getItem(`bus_note_${student.id}`) || '';
+    
+    return `
+        <div class="student-row" data-student-id="${student.id}">
+            <div class="cell-room">${student.stanza || '-'}</div>
+            <div class="cell-name">${student.nomeCompleto || `${student.nome} ${student.cognome}`}</div>
+            <div class="cell-class">${student.classe || '-'}</div>
+            <div class="cell-check">
+                <div class="check-box ${isChecked ? 'checked' : ''}" data-id="${student.id}"></div>
+            </div>
+            <div class="cell-notes">
+                <input type="text" class="bus-note-field" value="${savedNote}" placeholder="..." data-id="${student.id}">
+                <div class="line-notes-print">${savedNote}</div>
+            </div>
+        </div>
+    `;
+}).join('');
             }
             
             // Aggiungi event listeners per salvare le presenze localmente
