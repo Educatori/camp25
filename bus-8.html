@@ -144,31 +144,27 @@
     }
     
     // Attacca event listeners per salvare dati in localStorage
-    function attachEventListeners() {
-        document.querySelectorAll('.presence-check').forEach(checkbox => {
-            const studentId = checkbox.dataset.id;
-            const savedState = localStorage.getItem(`bus_presence_${studentId}`);
-            if (savedState === 'true') {
-                checkbox.checked = true;
-            }
-            
-            checkbox.addEventListener('change', (e) => {
-                localStorage.setItem(`bus_presence_${studentId}`, e.target.checked);
-            });
+   function attachEventListeners() {
+    // Gestione dei finti checkbox con i click
+    document.querySelectorAll('.check-box').forEach(checkbox => {
+        checkbox.addEventListener('click', (e) => {
+            const studentId = e.currentTarget.dataset.id;
+            const isChecked = e.currentTarget.classList.toggle('checked');
+            localStorage.setItem(`bus_presence_${studentId}`, isChecked);
         });
-        
-        document.querySelectorAll('.note-input').forEach(input => {
-            const studentId = input.dataset.id;
-            const savedNote = localStorage.getItem(`bus_note_${studentId}`);
-            if (savedNote) {
-                input.value = savedNote;
-            }
-            
-            input.addEventListener('blur', (e) => {
-                localStorage.setItem(`bus_note_${studentId}`, e.target.value);
-            });
+    });
+    
+    // Gestione dei campi di testo per le note
+    document.querySelectorAll('.bus-note-field').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const studentId = e.target.dataset.id;
+            localStorage.setItem(`bus_note_${studentId}`, e.target.value);
+            // Aggiorna lo specchietto per la stampa
+            const printMirror = e.target.nextElementSibling;
+            if (printMirror) printMirror.textContent = e.target.value;
         });
-    }
+    });
+}
     
     // Avvia l'applicazione
     loadBusStudents().catch(console.error);
