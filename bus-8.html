@@ -117,8 +117,9 @@
 
     return `
         <div class="student-row" data-student-id="${student.id}">
-            <div class="cell-room">${student.room || ''}</div>
-            <div class="cell-name">${student.nomeCompleto || `${student.cognome} ${student.nome}`}</div>
+                       <div class="cell-room">${student.room || '-'}</div>
+            <div class="cell-name">${student.nomeCompleto || `${student.nome} ${student.cognome}`}</div>
+ 
             <div class="cell-class">${classeEPercorso}</div>
             <div class="cell-check">
                 <div class="check-box ${isChecked ? 'checked' : ''}" data-id="${student.id}"></div>
