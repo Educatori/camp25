@@ -178,7 +178,8 @@ h1 {
     .student-row { 
         border-color: #ccc !important; 
         background: white !important; 
-        padding: 1.5px 4px !important; /* Ulteriore compressione millimetrica solo in stampa */
+        padding: 1.5px 4px !important;
+        height: 10px !important; /* Ulteriore compressione millimetrica solo in stampa */
     }
     .student-row:nth-child(even) { background: #f5f5f5 !important; }
     .bg-5b-g1 { background: #e8e8e8 !important; }
