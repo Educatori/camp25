@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -55,10 +54,9 @@
 
 <script type="module">
     // Import auth functions
-    import { initAuth, getStudentiBus8, logout, invalidateAllCache } from './auth.js';
+    import { initAuth, getStudentiBus8 } from './auth.js';
     
     // Inizializza autenticazione - questa pagina è protetta
-    // Se l'utente non è autorizzato, verrà reindirizzato a login.html
     await initAuth(true, "login.html");
     
     // Carica e mostra gli studenti del bus 8:00
@@ -71,7 +69,7 @@
                 if (container) container.innerHTML = '<div class="loading">Caricamento studenti...</div>';
             });
             
-            // Ottieni studenti bus 8:00 (solo convittori delle classi specifiche)
+            // Ottieni studenti bus 8:00
             const busStudents = await getStudentiBus8();
             
             if (!busStudents || busStudents.length === 0) {
@@ -82,28 +80,18 @@
                 return;
             }
             
-            // Distribuisci studenti nelle 3 colonne (per room)
-            const studentsByColumn = [[], [], []];
-            
-            busStudents.forEach(student => {
-                // Distribuzione basata sul numero di stanza per bilanciare le colonne
-                const roomNum = parseInt(student.stanza) || 0;
-                let colIndex = 0;
-                
-                if (roomNum >= 101 && roomNum <= 140) colIndex = 0;
-                else if (roomNum >= 141 && roomNum <= 180) colIndex = 1;
-                else colIndex = 2;
-                
-                studentsByColumn[colIndex].push(student);
+            // Ordina l'intera lista per COGNOME in ordine alfabetico
+            busStudents.sort((a, b) => {
+                const cognomeA = (a.cognome || a.nomeCompleto || '').trim().toLowerCase();
+                const cognomeB = (b.cognome || b.nomeCompleto || '').trim().toLowerCase();
+                return cognomeA.localeCompare(cognomeB, 'it', { sensitivity: 'base' });
             });
             
-            // Ordina per stanza all'interno di ogni colonna
-            studentsByColumn.forEach(col => {
-                col.sort((a, b) => {
-                    const roomA = parseInt(a.stanza) || 0;
-                    const roomB = parseInt(b.stanza) || 0;
-                    return roomA - roomB;
-                });
+            // Distribuisci gli studenti già ordinati nelle 3 colonne in modo bilanciato
+            const studentsByColumn = [[], [], []];
+            busStudents.forEach((student, index) => {
+                const colIndex = index % 3;
+                studentsByColumn[colIndex].push(student);
             });
             
             // Popola le colonne
@@ -134,7 +122,7 @@
             // Aggiungi event listeners per salvare le presenze localmente
             attachEventListeners();
             
-            console.log(`Caricati ${busStudents.length} studenti per il bus 8:00`);
+            console.log(`Caricati ${busStudents.length} studenti in ordine alfabetico per il bus 8:00`);
         } catch (error) {
             console.error("Errore nel caricamento degli studenti:", error);
             const cols = [0, 1, 2];
@@ -157,7 +145,6 @@
             
             checkbox.addEventListener('change', (e) => {
                 localStorage.setItem(`bus_presence_${studentId}`, e.target.checked);
-                console.log(`Presenza studente ${studentId}: ${e.target.checked}`);
             });
         });
         
@@ -171,52 +158,12 @@
             
             input.addEventListener('blur', (e) => {
                 localStorage.setItem(`bus_note_${studentId}`, e.target.value);
-                console.log(`Nota studente ${studentId}: ${e.target.value}`);
             });
         });
     }
     
-    // Pulisci tutti i dati salvati (utile per reset giornaliero)
-    window.clearBusData = function() {
-        if (confirm('Sei sicuro di voler cancellare tutte le presenze e note salvate?')) {
-            const keys = Object.keys(localStorage);
-            keys.forEach(key => {
-                if (key.startsWith('bus_presence_') || key.startsWith('bus_note_')) {
-                    localStorage.removeItem(key);
-                }
-            });
-            // Ricarica la pagina per resettare la UI
-            location.reload();
-        }
-    };
-    
-   
-        
-        const csvContent = rows.map(row => row.join(',')).join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.href = url;
-        link.setAttribute('download', `bus_8_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    };
-    
-    
-  
-  
-    
-    // Inizializza la pagina
-    async function init() {
-        await loadBusStudents();
-        addControlButtons();
-        addLogoutButton();
-    }
-    
     // Avvia l'applicazione
-    init().catch(console.error);
+    loadBusStudents().catch(console.error);
 </script>
 </body>
 </html>
