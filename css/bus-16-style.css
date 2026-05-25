@@ -1,0 +1,211 @@
+/* ============================================================
+   OTTIMIZZAZIONE GRIGLIA BUS 16:00 (COMPATTEZZA MASSIMA A4)
+   ============================================================ */
+
+.header-main {
+    text-align: center;
+    border-bottom: 2px solid var(--border-2);
+    margin-bottom: 10px;
+    padding: 6px 0 8px;
+    position: relative;
+}
+
+/* Griglia principale a 3 macro-colonne verticali */
+.grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 12px;
+}
+
+/* STRUTTURA AD ALTA PRECISIONE (GRID)
+   Applichiamo la griglia sia all'intestazione che alle righe degli studenti.
+   - Classe: 55px (sufficiente per "5A • G1")
+   - Nome: si prende tutto lo spazio rimasto (1fr)
+   - 4 colonne da 26px per i giorni (LU, MA, ME, GI)
+*/
+.column-header, .student-row {
+    display: grid;
+    grid-template-columns: 55px 1fr 26px 26px 26px 26px;
+    column-gap: 4px;
+    align-items: center;
+}
+
+.column-header {
+    background: var(--bg-2);
+    color: var(--text-2);
+    font-weight: 700;
+    padding: 4px 6px;
+    border-radius: 4px 4px 0 0;
+    font-size: 10px;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    text-align: center;
+}
+
+/* Forza l'allineamento a sinistra solo per il testo "Nome" nell'header */
+.column-header .cell-name {
+    text-align: left;
+}
+
+/* Righe degli studenti estremamente sottili */
+.student-row {
+    padding: 2px 6px;
+    margin-bottom: 1px;
+    border: 0.5px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    height: 18px; /* Forza altezza fissa per compattare */
+    box-sizing: border-box;
+}
+
+.student-row:nth-child(even) { background: var(--surface-2); }
+.student-row:hover { background: var(--accent-dim); }
+
+/* Stile celle interne riscalate per lo schema ore 16 */
+.cell-class {
+    font-size: 8px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.cell-name {
+    font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 2px;
+}
+
+.cell-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px; /* Per le scritte LU, MA, ME, GI nell'header */
+}
+
+/* Checkbox personalizzato ridimensionato per l'altezza di 18px */
+.check-box {
+    width: 11px;
+    height: 11px;
+    border: 1px solid var(--border-2);
+    border-radius: 2px;
+    background: var(--bg-2);
+    cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.check-box.checked {
+    background: var(--ok-dim);
+    border-color: var(--ok);
+}
+
+.check-box.checked::after {
+    content: '✔';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--ok);
+    line-height: 1;
+}
+
+/* Stile interattivo: Riga depennata al click sul nome */
+.row-crossed {
+    background: rgba(0, 0, 0, 0.03) !important;
+}
+.row-crossed .cell-name {
+    text-decoration: line-through;
+    color: var(--text-muted) !important;
+    opacity: 0.6;
+}
+
+/* Separatore spesso e scuro tra classi differenti */
+.class-separator {
+    height: 3px;
+    background-color: var(--border-2, #34495e);
+    margin: 4px 0;
+    border-radius: 2px;
+}
+
+
+/* ============================================================
+   STAMPA SPECIFICA (A4 LANDSCAPE UNICO FOGLIO)
+   ============================================================ */
+@media print {
+    @page { 
+        size: A4 landscape; 
+        margin: 0.4cm 0.6cm; 
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 10px !important;
+    }
+
+    .header-main {
+        margin-bottom: 8px;
+        padding: 4px 0;
+    }
+
+    .header-main h1 {
+        font-size: 14px !important;
+    }
+
+    /* Mantiene la struttura a griglia millimetrica anche su carta */
+    .column-header, .student-row {
+        grid-template-columns: 55px 1fr 26px 26px 26px 26px !important;
+    }
+
+    .student-row { 
+        border-color: #ddd !important; 
+        background: white !important; 
+        height: 17px !important; /* Massima compressione per far entrare tutto in un foglio */
+        padding: 0px 6px !important;
+    }
+    
+    .student-row:nth-child(even) { 
+        background: #f7f9fa !important; 
+    }
+    
+    .cell-class {
+        color: black !important;
+        font-size: 8px !important;
+    }
+    
+    .cell-name {
+        font-size: 9.5px !important;
+        color: black !important;
+    }
+
+    /* Checkbox ad alto contrasto per stampanti in bianco e nero (Toner-Safe) */
+    .check-box { 
+        border: 1px solid #000 !important; 
+        background: white !important; 
+        width: 10px !important;
+        height: 10px !important;
+    }
+    
+    .check-box.checked {
+        background: #e8f5e9 !important;
+    }
+    
+    .check-box.checked::after { 
+        color: #000 !important; 
+        font-size: 8px !important;
+    }
+
+    /* Forza la visualizzazione del separatore di classe durante la stampa */
+    .class-separator {
+        background-color: #333 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
