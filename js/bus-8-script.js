@@ -1,4 +1,4 @@
-/* BUS-8-SCRIPT.JS */
+ /* BUS-8-SCRIPT.JS */
 export function elaboraEGeneraGriglia(studenticonvittori) {
     if (!studenticonvittori) return;
 
