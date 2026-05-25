@@ -5,8 +5,8 @@
 .header-main {
     text-align: center;
     border-bottom: 2px solid var(--border-2);
-    margin-bottom: 10px; /* Ridotto */
-    padding: 6px 0 8px; /* Ridotto */
+    margin-bottom: 10px;
+    padding: 6px 0 8px;
     position: relative;
 }
 
@@ -14,7 +14,7 @@
 .grid-wrapper {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    column-gap: 12px; /* Ridotto lo spazio tra colonne */
+    column-gap: 12px;
 }
 
 .column-header {
@@ -22,7 +22,7 @@
     background: var(--bg-2);
     color: var(--text-2);
     font-weight: 700;
-    padding: 5px 6px; /* Ridotto padding verticale */
+    padding: 5px 6px;
     border-radius: 4px 4px 0 0;
     font-size: 10px;
     margin-bottom: 1px;
@@ -36,7 +36,7 @@
 .student-row {
     display: flex;
     align-items: center;
-    padding: 2px 4px; /* Compressione verticale massima */
+    padding: 2px 4px;
     margin-bottom: 1px;
     border: 0.5px solid var(--border);
     border-radius: 2px;
@@ -50,10 +50,10 @@
 
 /* Celle interne riscalate */
 .cell-room {
-    width: 28px; /* Ridotto */
+    width: 28px;
     font-weight: 700;
     font-family: var(--font-mono);
-    font-size: 10px; /* Ridotto */
+    font-size: 10px;
     color: var(--accent);
     border-right: 1px solid var(--border);
     flex-shrink: 0;
@@ -61,20 +61,21 @@
 .cell-name {
     flex-grow: 1;
     padding-left: 4px;
-    font-size: 9px; /* Ridotto per evitare overflow di nomi lunghi */
+    font-size: 9px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: pointer;
 }
 .cell-class {
-    width: 45px; /* Ridotto da 48px */
+    width: 45px;
     text-align: center;
     font-size: 8px;
     color: var(--text-muted);
     flex-shrink: 0;
 }
 .cell-check {
-    width: 32px; /* Ridotto da 38px */
+    width: 32px;
     text-align: center;
     flex-shrink: 0;
     display: flex;
@@ -82,7 +83,7 @@
     justify-content: center;
 }
 .cell-notes {
-    width: 65px; /* Bilanciato */
+    width: 65px;
     text-align: center;
     flex-shrink: 0;
     position: relative;
@@ -144,13 +145,22 @@
     line-height: 1;
 }
 
+/* Logica grafica interazione cancellazione (riga sbarrata) */
+.row-crossed {
+    background: rgba(0, 0, 0, 0.04) !important;
+}
+.row-crossed .cell-name {
+    text-decoration: line-through;
+    color: #999 !important;
+}
+
 /* ============================================================
    STAMPA SPECIFICA (A4 LANDSCAPE UNICO FOGLIO)
    ============================================================ */
 @media print {
     @page { 
         size: A4 landscape; 
-        margin: 0.4cm 0.6cm; /* Margini ridotti per guadagnare spazio verticale */
+        margin: 0.4cm 0.6cm; 
     }
 
     body {
@@ -172,12 +182,12 @@
     .student-row { 
         border-color: #ddd !important; 
         background: white !important; 
-        height: 20px !important; /* Compressione estrema per la stampa fisica */
+        height: 20px !important; 
         padding: 0px 3px !important;
     }
     
     .student-row:nth-child(even) { 
-        background: #f7f9fa !important; /* Sfondo chiarissimo alternato */
+        background: #f7f9fa !important; 
     }
     
     .cell-room { 
@@ -197,7 +207,6 @@
         font-size: 8px !important;
     }
 
-    /* Nasconde l'input testuale nativo in stampa e mostra il div riga */
     .bus-note-field {
         display: none !important;
     }
@@ -205,7 +214,6 @@
         display: block !important;
     }
 
-    /* Checkbox ad alto contrasto per i toner */
     .check-box { 
         border: 1px solid #000 !important; 
         background: white !important; 
