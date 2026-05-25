@@ -1,59 +1,82 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>BUS ore 8 — Trasporto Mattino</title>
-    <link rel="stylesheet" href="css/campus-theme.css">
-    <link rel="stylesheet" href="css/bus-8-style.css">
-</head>
-<body>
+/* BUS-8-SCRIPT.JS */
+function generaGrigliaBus() {
+    if (typeof studenticonvittori === 'undefined') {
+        console.error("Errore: convittori.js non caricato correttamente.");
+        return;
+    }
 
-<div class="no-print">
-    <button class="btn" onclick="window.print()">STAMPA</button>
-</div>
+    // --- FILTRO CLASSI ESCLUSE ---
+    const validi = studenticonvittori.filter(s => {
+        const classe = s.classe.toUpperCase();
+        const escluse = ["2A", "2B"];
+        return !escluse.includes(classe) && !classe.includes("P") && s.cognome;
+    });
+    
+    // Separazione per ordinamento speciale 5B
+    const resto = validi.filter(s => s.classe !== "5B");
+    const classe5B = validi.filter(s => s.classe === "5B");
 
-<div class="header-main">
-    <img src="assets/Logo.png" alt="Logo" class="print-logo">
-    <h1>
-        <a href="index.html">Bus Mattino</a>
-    </h1>
-</div>
+    // Ordinamento alfabetico resto (A-Z per cognome)
+    resto.sort((a, b) => a.cognome.localeCompare(b.cognome));
 
-<div class="grid-wrapper" id="mainWrapper">
-    <div class="macro-column">
-        <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
-        </div>
-        <div id="col0"></div>
-    </div>
-    <div class="macro-column">
-        <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
-        </div>
-        <div id="col1"></div>
-    </div>
-    <div class="macro-column">
-        <div class="column-header">
-            <div class="cell-room">Room</div>
-            <div class="cell-name">Nome</div>
-            <div class="cell-class">Classe</div>
-            <div class="cell-check">Presenza</div>
-            <div class="cell-notes">Note</div>
-        </div>
-        <div id="col2"></div>
-    </div>
-</div>
+    // CORREZIONE: Ordinamento 5B prima per Gruppo (G1 -> G2) e POI per cognome
+    classe5B.sort((a, b) => {
+        const gA = a.gruppo || "";
+        const gB = b.gruppo || "";
+        
+        // 1. Se i gruppi sono diversi, ordina per gruppo (G1 prima di G2)
+        if (gA !== gB) {
+            return gA.localeCompare(gB);
+        }
+        // 2. Se il gruppo è lo stesso, ordina alfabeticamente per cognome
+        return a.cognome.localeCompare(b.cognome);
+    });
 
-<script src="js/studenti_25-26.js"></script>
-<script src="js/convittori.js"></script>
-<script src="js/bus-8-script.js"></script>
-</body>
-</html>
+    const listaFinale = [...resto, ...classe5B];
+    
+    // Pulizia colonne
+    document.getElementById('col0').innerHTML = "";
+    document.getElementById('col1').innerHTML = "";
+    document.getElementById('col2').innerHTML = "";
+
+    const itemsPerCol = Math.ceil(listaFinale.length / 3);
+
+    listaFinale.forEach((s, index) => {
+        const colIndex = Math.floor(index / itemsPerCol);
+        const colTarget = document.getElementById('col' + colIndex);
+        if (!colTarget) return;
+
+        const infoClasse = `${s.classe} ${s.percorso ? s.percorso : ''} ${s.gruppo ? '•  ' + s.gruppo : ''}`;
+        
+        let bgClass = "";
+        if (s.classe === "5B") {
+            if (s.gruppo === "G1") bgClass = "bg-5b-g1";
+            if (s.gruppo === "G2") bgClass = "bg-5b-g2";
+        }
+
+        const row = document.createElement('div'); 
+        row.className = `student-row ${bgClass}`;
+        row.innerHTML = `
+            <div class="cell-room">${s.room}</div>
+            <div class="cell-name"><b>${s.cognome}</b> ${s.nome}</div>
+            <div class="cell-class">${infoClasse}</div>
+            <div class="cell-check"><div class="check-box" style="cursor:pointer"></div></div>
+            <div class="cell-notes"><div class="line-notes"></div></div>
+        `;
+
+        // Logica Interattiva
+        const nameCell = row.querySelector('.cell-name');
+        const checkBox = row.querySelector('.check-box');
+        
+        nameCell.addEventListener('click', () => row.classList.toggle('row-crossed'));
+        
+        checkBox.addEventListener('click', (e) => {
+            checkBox.classList.toggle('checked');
+        });
+
+        colTarget.appendChild(row);
+    });
+}
+
+// Avvia la generazione al caricamento della pagina
+window.onload = generaGrigliaBus;
