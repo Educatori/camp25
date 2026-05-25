@@ -1,17 +1,17 @@
- /* BUS-8-SCRIPT.JS */
+/* BUS-8-SCRIPT.JS */
 export function elaboraEGeneraGriglia(studenticonvittori) {
     if (!studenticonvittori) return;
 
     // 1. FILTRO: Esclusione classi non valide, percorsi "P" e record senza cognome
     const validi = studenticonvittori.filter(s => {
-        const classe = (s.classe || "").toUpperCase();
+        const classe = (s.classe || "").toUpperCase().trim();
         const escluse = ["2A", "2B"];
         return !escluse.includes(classe) && !classe.includes("P") && s.cognome;
     });
     
     // 2. SEPARAZIONE: Isoli la 5B per mandarla in fondo alla lista finale
-    const resto = validi.filter(s => s.classe !== "5B");
-    const classe5B = validi.filter(s => s.classe === "5B");
+    const resto = validi.filter(s => (s.classe || "").toUpperCase().trim() !== "5B");
+    const classe5B = validi.filter(s => (s.classe || "").toUpperCase().trim() === "5B");
 
     // 3. ORDINAMENTO: Alfabetico standard (A-Z per cognome) per il resto della scuola
     resto.sort((a, b) => {
@@ -22,15 +22,26 @@ export function elaboraEGeneraGriglia(studenticonvittori) {
 
     // 4. ORDINAMENTO SPECIALIZZATO 5B: Prima divisi per Gruppo (G1 -> G2), poi per Cognome
     classe5B.sort((a, b) => {
-        const gA = a.gruppo || "";
-        const gB = b.gruppo || "";
+        // Normalizzazione del gruppo: costringe il testo in maiuscolo e pulito (es. "G1")
+        // Se non trova nulla, cerca di estrarlo dalle note (es. se c'è scritto "G1" o "G2" nelle note)
+        let gA = (a.gruppo || "").toUpperCase().trim();
+        let gB = (b.gruppo || "").toUpperCase().trim();
         
-        // Se appartengono a gruppi diversi (es. G1 e G2), ordina per stringa gruppo
+        if (!gA && a.note) gA = a.note.toUpperCase().includes("G1") ? "G1" : (a.note.toUpperCase().includes("G2") ? "G2" : "");
+        if (!gB && b.note) gB = b.note.toUpperCase().includes("G1") ? "G1" : (b.note.toUpperCase().includes("G2") ? "G2" : "");
+
+        // Se appartengono a gruppi diversi (es. uno è G1 e l'altro G2), ordina per gruppo
         if (gA !== gB) {
+            // Gestisce i casi in cui il gruppo sia vuoto mettendoli comunque in coda al gruppo corretto
+            if (!gA) return 1;
+            if (!gB) return -1;
             return gA.localeCompare(gB);
         }
-        // Se lo stesso gruppo, ordina alfabeticamente per cognome
-        return a.cognome.trim().toLowerCase().localeCompare(b.cognome.trim().toLowerCase(), 'it', { sensitivity: 'base' });
+        
+        // Se hanno lo stesso gruppo (o entrambi non ce l'hanno), ordina alfabeticamente per cognome
+        const cogA = a.cognome.trim().toLowerCase();
+        const cogB = b.cognome.trim().toLowerCase();
+        return cogA.localeCompare(cogB, 'it', { sensitivity: 'base' });
     });
 
     // Unione finale degli array (il resto prima, la 5B ordinata in fondo)
@@ -41,26 +52,33 @@ export function elaboraEGeneraGriglia(studenticonvittori) {
     document.getElementById('col1').innerHTML = "";
     document.getElementById('col2').innerHTML = "";
 
+    // Calcolo matematico per dividere equamente gli elementi nelle 3 colonne
     const itemsPerCol = Math.ceil(listaFinale.length / 3);
 
     // 5. GENERAZIONE COMPONENTI DOM E RENDERING TRIDIREZIONALE
     listaFinale.forEach((s, index) => {
         const colIndex = Math.floor(index / itemsPerCol);
-        const colTarget = document.getElementById('col' + colIndex);
+        // Protezione per evitare sforamenti sulla quarta colonna inesistente (col3) a causa degli arrotondamenti
+        const finalColIndex = colIndex > 2 ? 2 : colIndex; 
+        const colTarget = document.getElementById('col' + finalColIndex);
         if (!colTarget) return;
 
         // Recupero degli stati di presenza e delle note testuali salvate nel LocalStorage
         const isChecked = localStorage.getItem(`bus_presence_${s.id}`) === 'true';
         const savedNote = localStorage.getItem(`bus_note_${s.id}`) || '';
 
-        const infoClasse = `${s.classe || '-'} ${s.percorso ? s.percorso : ''} ${s.gruppo ? '• ' + s.gruppo : ''}`.trim();
+        // Formatta visivamente il gruppo e la classe
+        const clUpper = (s.classe || '-').toUpperCase().trim();
+        const grUpper = (s.gruppo || "").toUpperCase().trim();
+        const infoClasse = `${clUpper} ${s.percorso ? s.percorso : ''} ${grUpper ? '• ' + grUpper : ''}`.trim();
+        
         const camera = String(s.room || s.stanza || '-').trim();
         const nomeVisualizzato = `${s.cognome.toUpperCase()} ${s.nome || ''}`.trim();
         
         let bgClass = "";
-        if (s.classe === "5B") {
-            if (s.gruppo === "G1") bgClass = "bg-5b-g1";
-            if (s.gruppo === "G2") bgClass = "bg-5b-g2";
+        if (clUpper === "5B") {
+            if (grUpper === "G1" || infoClasse.includes("G1")) bgClass = "bg-5b-g1";
+            if (grUpper === "G2" || infoClasse.includes("G2")) bgClass = "bg-5b-g2";
         }
 
         const row = document.createElement('div'); 
